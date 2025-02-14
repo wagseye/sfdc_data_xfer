@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Active__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description>A field to tell whether this Setting object should be looked at. It allows settings to be disabled without being deleted, so they can easily be reused at a later time</description>
+    <inlineHelpText>Uncheck this box to make this setting inactive (instead of deleting it).</inlineHelpText>
+    <label>Active</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

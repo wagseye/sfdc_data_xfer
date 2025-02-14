@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <description>The type of value stored in this Setting. Must be &quot;String&quot;, &quot;Integer&quot;, &quot;Double&quot;, &quot;Boolean&quot;, &quot;Date&quot;, or &quot;DateTime&quot;</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Must be &quot;String&quot;, &quot;Integer&quot;, &quot;Double&quot;, &quot;Boolean&quot;, &quot;Date&quot;, or &quot;DateTime&quot;</inlineHelpText>
+    <label>Type</label>
+    <length>8</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
