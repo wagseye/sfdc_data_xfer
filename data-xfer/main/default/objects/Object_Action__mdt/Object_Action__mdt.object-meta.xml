@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Holds information about how to perform a specific action (e.g. create, retrieve, update) a particular object in a particular data source.</description>
+    <label>Object Action</label>
+    <pluralLabel>Object Actions</pluralLabel>
+    <visibility>Protected</visibility>
+</CustomObject>
