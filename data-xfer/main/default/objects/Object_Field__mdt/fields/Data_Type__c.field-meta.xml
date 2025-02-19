@@ -10,9 +10,9 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>string</fullName>
+                <fullName>text</fullName>
                 <default>true</default>
-                <label>string</label>
+                <label>text</label>
             </value>
             <value>
                 <fullName>boolean</fullName>

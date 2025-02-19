@@ -16,11 +16,15 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>Data_Source__c</field>
+                <field>Base_Url__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>API_Name__c</field>
+                <field>API_Version__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Handler_Class__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -72,19 +76,7 @@
         <fields>MasterLabel</fields>
         <fields>DeveloperName</fields>
         <fields>NamespacePrefix</fields>
-        <relatedList>Object_Field__mdt.Object__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>MasterLabel</fields>
-        <fields>DeveloperName</fields>
-        <fields>NamespacePrefix</fields>
-        <relatedList>Object_Field__mdt.Referenced_Object__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>MasterLabel</fields>
-        <fields>DeveloperName</fields>
-        <fields>NamespacePrefix</fields>
-        <relatedList>Object_Action__mdt.Object__c</relatedList>
+        <relatedList>Object__mdt.Data_Source__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
@@ -92,7 +84,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h7e0000067zXG</masterLabel>
+        <masterLabel>00h7e0000067zSN</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

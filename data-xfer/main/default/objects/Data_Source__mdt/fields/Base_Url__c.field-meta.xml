@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Base_Url__c</fullName>
+    <description>Holds the base URL (at least the protocol and server, possibly part of the path if it is invariant) to connect to the web service. It can potentially hold variables that the handler class will use to perform a substitution Variables should be of the format {{VARIABLE_NAME}}.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Base URL</label>
+    <length>255</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
