@@ -7,6 +7,10 @@
     {
       "path": "settings",
       "default": false
+    },
+    {
+      "path": "stripe-service",
+      "default": false
     }
   ],
   "name": "data-xfer-app",
