@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>name_is_proper_format</fullName>
+    <active>true</active>
+    <description>The DeveloperName must have the Data Source&apos;s name as a prefix, then have and underscore followed by a max of four characters</description>
+    <errorConditionFormula>!REGEX(DeveloperName, Data_Source__r.DeveloperName &amp; &apos;_[a-zA-Z0-9]{1,4}&apos;)</errorConditionFormula>
+    <errorMessage>The DeveloperName must have the Data Source&apos;s name as a prefix, then have and underscore followed by a max of four characters</errorMessage>
+</ValidationRule>

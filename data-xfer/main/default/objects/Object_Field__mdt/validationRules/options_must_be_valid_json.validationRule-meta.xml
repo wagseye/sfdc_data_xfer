@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>options_must_be_valid_json</fullName>
+    <active>true</active>
+    <description>If options is set, it must contain a valid JSON object</description>
+    <errorConditionFormula>/* This was an AI generated regex and could probably use some refining, but is adequate for now */
+!ISBLANK(Options__c) &amp;&amp;
+!REGEX(Options__c, &apos;^\\{\\s*\&quot;([^\&quot;]+)\&quot;\\s*:\\s*\&quot;([^\&quot;]*)\&quot;\\s*(,\\s*\&quot;([^\&quot;]+)\&quot;\\s*:\\s*\&quot;([^\&quot;]*)\&quot;\\s*)*\\}$&apos;)</errorConditionFormula>
+    <errorMessage>The options field must contain a valid JSON object</errorMessage>
+</ValidationRule>

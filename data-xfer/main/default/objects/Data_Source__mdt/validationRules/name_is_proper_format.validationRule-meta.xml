@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>name_is_proper_format</fullName>
+    <active>true</active>
+    <description>In order to be able to name all objects uniquely (and in a constructible manner) we need to limit the DeveloperName field. For data source the limit is 4 chars.</description>
+    <errorConditionFormula>!REGEX(DeveloperName,&apos;^[a-z0-9]{1,4}$&apos;)</errorConditionFormula>
+    <errorMessage>The DeveloperName must be 4 or less lower case or numeric characters</errorMessage>
+</ValidationRule>
