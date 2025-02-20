@@ -1,0 +1,2 @@
+Name,Display_Name__c,Base_Url__c,API_Version__c,Handler_Class__c
+strp,Stripe,"https://api.stripe.com/v1","2025-01-27.acacia",StripeHandler

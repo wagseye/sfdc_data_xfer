@@ -1,0 +1,3 @@
+Name,Display_Name__c,API_Name__c,Data_Source__c
+strp_pi,"Payment Intent",payment_intent,strp
+strp_inv,"Invoice",invoice,strp

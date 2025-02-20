@@ -1,0 +1,4 @@
+Name,Object__c,Action__c,Path__c,Method__c
+strp_pi_get,strp_pi,get,"/payment_intents/{{PAYMENT_ID}}",GET
+strp_pi_query,strp_pi,query,"/payment_intents/search",GET
+strp_pi_crate,strp_pi,create,"/payment_intents",POST

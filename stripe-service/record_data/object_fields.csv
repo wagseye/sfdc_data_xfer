@@ -1,0 +1,5 @@
+Name,Display_Name__c,API_Name__c,Object__c,Data_Type__c,Options__c,Referenced_Object__c,Referenced_Object_Field__c
+strp_pi_id,Id,id,strp_pi,text,,,
+strp_pi_amount,Amount,amount,strp_pi,currency,,,
+strp_pi_created,Created,created,strp_pi,datetime,,,
+strp_inv_id,Id,id,strp_inv,text,,,
