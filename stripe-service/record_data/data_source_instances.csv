@@ -1,0 +1,2 @@
+Name,Display_Name__c,Data_Source_Name__c,API_Secret__c,Instance_Type__c
+strp_1,Stripe test instance,strp,${STRIPE_KEY},sandbox
