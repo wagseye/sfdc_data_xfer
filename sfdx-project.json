@@ -11,6 +11,10 @@
     {
       "path": "stripe-service",
       "default": false
+    },
+    {
+      "path": "sfdc-service",
+      "default": false
     }
   ],
   "name": "data-xfer-app",
