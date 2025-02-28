@@ -1,0 +1,59 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "Field_Mapping_Set__c",
+                "referenceId": "Field_Mapping_Set__cRef1"
+            },
+            "Name": "Test Set",
+            "External_Object__c": "strp_pi",
+            "Salesforce_Object__c": "Opportunity",
+            "Field_Mappings__r": {
+                "records": [
+                    {
+                        "attributes": {
+                            "type": "Field_Mapping__c",
+                            "referenceId": "Field_Mapping__cRef1"
+                        },
+                        "Name": "a06DW000003hh43",
+                        "External_Field__c": "amount",
+                        "Salesforce_Field__c": "Amount"
+                    },
+                    {
+                        "attributes": {
+                            "type": "Field_Mapping__c",
+                            "referenceId": "Field_Mapping__cRef2"
+                        },
+                        "Name": "a06DW000003hh44",
+                        "External_Field__c": "created",
+                        "Salesforce_Field__c": "CloseDate"
+                    },
+                    {
+                        "attributes": {
+                            "type": "Field_Mapping__c",
+                            "referenceId": "Field_Mapping__cRef3"
+                        },
+                        "Name": "a06DW000003hh45",
+                        "External_Field__c": "id",
+                        "Salesforce_Field__c": "NextStep"
+                    }
+                ]
+            },
+            "Data_Flow_Definitions__r": {
+                "records": [
+                    {
+                        "attributes": {
+                            "type": "Data_Flow_Definition__c",
+                            "referenceId": "Data_Flow_Definition__cRef1"
+                        },
+                        "Name": "Test Definition",
+                        "External_Data_Source__c": "strp",
+                        "External_Object__c": "strp_pi",
+                        "Salesforce_Object__c": "Opportunity",
+                        "Type__c": "import"
+                    }
+                ]
+            }
+        }
+    ]
+}
