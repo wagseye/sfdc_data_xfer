@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Field_Mapping_Set__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Field Mapping Set</label>
+    <referenceTo>Field_Mapping_Set__c</referenceTo>
+    <relationshipLabel>Data Flow Definitions</relationshipLabel>
+    <relationshipName>Data_Flow_Definitions</relationshipName>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

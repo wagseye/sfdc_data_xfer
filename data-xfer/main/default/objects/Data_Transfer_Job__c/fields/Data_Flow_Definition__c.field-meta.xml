@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Data_Flow_Definition__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Data Flow Definition</label>
+    <referenceTo>Data_Flow_Definition__c</referenceTo>
+    <relationshipName>Data_Transfer_Results</relationshipName>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
