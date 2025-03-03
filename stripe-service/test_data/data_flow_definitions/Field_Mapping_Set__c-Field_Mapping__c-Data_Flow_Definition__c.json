@@ -50,7 +50,8 @@
                         "External_Data_Source__c": "strp",
                         "External_Object__c": "strp_pi",
                         "Salesforce_Object__c": "Opportunity",
-                        "Type__c": "import"
+                        "Type__c": "import",
+                        "Data_Source_Instance_Name__c": "strp_1"
                     }
                 ]
             }
