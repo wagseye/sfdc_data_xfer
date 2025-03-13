@@ -9,6 +9,6 @@ public with sharing abstract class ObjectWrapper {
         return this.record.get(fldName);
     }
 
-    public String getApiName() { return (String)this.get('DeveloperName'); }
+    public virtual String getApiName() { return (String)this.get('DeveloperName'); }
 
 }

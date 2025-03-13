@@ -19,3 +19,7 @@ fi
 
 BASE_PROJ=$PROJECT_HOME/data-xfer
 BASE_HOME=$BASE_PROJ/main/default
+
+STRIPE_PROJ=$PROJECT_HOME/stripe-service
+STRIPE_HOME=$STRIPE_PROJ/main/default
+STRIPE_SCRIPTS=$STRIPE_PROJ/scripts/shell

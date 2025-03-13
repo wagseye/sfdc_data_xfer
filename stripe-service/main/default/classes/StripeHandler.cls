@@ -79,16 +79,14 @@ public with sharing class StripeHandler extends ServiceHandler {
     }
 
     public override Map<String,Object> getRequestData(DataFlowDefinition dfd) {
-        ExternalObjectAction action = dfd.getDefaultAction();
-        if (action.getAction().equalsIgnoreCase('query')) {
-            Map<String,Object> data = new Map<String,Object>();
-            StripeQuery q = new StripeQuery();
-            q.addCondition('amount', '>', 1000);
-            q.addCondition('customer', '=', 'cus_Rs7xP84wr6CJPD');
-            data.put('query', q.toString());
-            return data;
-        }
-        return null;
+        ExternalObjectAction action = dfd.getAction('query');
+        if (action == null) throw new StandardException('Could not find Stripe query action for ' + dfd.getExternalObject() + ' object');
+        Map<String,Object> data = new Map<String,Object>();
+        StripeQuery q = new StripeQuery();
+        q.addCondition('amount', '>', 1000);
+        q.addCondition('customer', '=', 'cus_Rs7xP84wr6CJPD');
+        data.put('query', q.toString());
+        return data;
     }
 
     public override String getServiceApiName() {

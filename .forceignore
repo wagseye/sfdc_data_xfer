@@ -13,3 +13,6 @@ package.xml
 
 # We aren't touching profiles
 **/profiles
+
+# Ignore object translations
+**/objectTranslations

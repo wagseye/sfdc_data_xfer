@@ -112,6 +112,15 @@ public with sharing abstract class ServiceHandler {
     //     return resp.getRecords();
     // }
 
+    public virtual List<DataRecord> retrieveRecords(DataFlowDefinition dfd) {
+        ExternalObjectAction action = dfd.getAction('query');
+        return null;
+    }
+
+    public virtual void updateRecords(DataFlowDefinition dfd) {
+        ExternalObjectAction action = dfd.getAction('create');
+    }
+
     public virtual ServiceResponse transferData(DataFlowDefinition dfd) {
         if (dfd == null) throw new IllegalArgumentException('A valid dfd must be provided');
         //String mdName = getObjectActionName(actionName);
@@ -176,11 +185,11 @@ public with sharing abstract class ServiceHandler {
     }
 
     public virtual String getPath(DataFlowDefinition dfd) {
-        return dfd.getDefaultAction().getPath();
+        return null; //dfd.getDefaultAction().getPath();
     }
 
     public virtual String getHttpMethod(DataFlowDefinition dfd) {
-        return dfd.getDefaultAction().getMethod();
+        return null; //dfd.getDefaultAction().getMethod();
     }
 
     public virtual Map<String,String> getRequestHeaders(DataFlowDefinition dfd) {

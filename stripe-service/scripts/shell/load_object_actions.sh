@@ -2,8 +2,15 @@
 
 set -e # exit on any errors
 
-CWD="$(dirname "$(which "$0")")"
-source $CWD/init.sh
+if [ -z "$PROJECT_HOME" ]; then
+    CWD="$(dirname "$(which "$0")")"
+    source $CWD/init.sh
+fi
+
+if [ -z "$PROJECT_HOME" ]; then
+    echo "init.sh script has not been called" && exit 1;
+fi
+
 
 sf cmdt generate records \
   --csv $STRIPE_PROJ/record_data/object_actions.csv \

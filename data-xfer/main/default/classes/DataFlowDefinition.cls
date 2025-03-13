@@ -2,7 +2,7 @@ public with sharing class DataFlowDefinition extends ObjectWrapper {
     protected DataSource source;
     protected DataSourceInstance dsi;
     protected ExternalObject exObj;
-    protected ExternalObjectAction action;
+    protected Map<String,ExternalObjectAction> mapActions;
 
     public static DataFlowDefinition getRecordById(Id recId) {
         if (String.isBlank(recId)) throw new IllegalArgumentException('Record id must be specified');
@@ -42,17 +42,15 @@ public with sharing class DataFlowDefinition extends ObjectWrapper {
         return this.exObj;
     }
 
-    public ExternalObjectAction getDefaultAction() {
-        if (this.action == null) {
-            if (!this.isImport()) throw new IllegalArgumentException('No default action found');
-            this.action = this.getAction('query');
-        }
-        return this.action;
-    }
-
     public ExternalObjectAction getAction(String actionName) {
-        String fullName = ExternalObjectAction.getActionName(this.getExternalObject(), actionName);
-        return ExternalObjectAction.getRecordByName(fullName);
+        if (mapActions == null) mapActions = new Map<String,ExternalObjectAction>();
+        ExternalObjectAction action = mapActions.get(actionName);
+        if (action == null) {
+            String fullName = ExternalObjectAction.getActionName(this.getExternalObject(), actionName);
+            action = ExternalObjectAction.getRecordByName(fullName);
+            if (action != null) mapActions.put(actionName, action);
+        }
+        return action;
     }
 
     public void run() {

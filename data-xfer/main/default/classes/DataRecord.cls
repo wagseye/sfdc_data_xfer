@@ -6,10 +6,20 @@ public with sharing virtual class DataRecord {
         this.record = record;
     }
 
-    public virtual Object get(String fldName) {
-        return this.record.get(fldName);
+    public virtual Object get(ExternalObjectField fld) {
+        switch on fld.getType().toLowerCase() {
+            when 'text' {
+                return this.toText(null);
+            }
+            when else {
+                throw new StandardException('Unrecognized field type: ' + fld.getType());
+            }
+        }
     }
 
+    public virtual void set(String fldName, Object value, String fieldType) {
+        this.record.put(fldName, value);
+    }
 
     public virtual String toText(Object value) {
         return (String)value;
