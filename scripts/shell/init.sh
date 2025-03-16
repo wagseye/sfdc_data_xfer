@@ -23,3 +23,7 @@ BASE_HOME=$BASE_PROJ/main/default
 STRIPE_PROJ=$PROJECT_HOME/stripe-service
 STRIPE_HOME=$STRIPE_PROJ/main/default
 STRIPE_SCRIPTS=$STRIPE_PROJ/scripts/shell
+
+SFDC_PROJ=$PROJECT_HOME/sfdc-service
+SFDC_HOME=$SFDC_PROJ/main/default
+SFDC_SCRIPTS=$SFDC_PROJ/scripts/shell
