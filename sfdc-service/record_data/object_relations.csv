@@ -1,0 +1,4 @@
+Name,Data_Source__c,Object1__c,Object2__c,Ratio__c,Type__c,Intermediate_Object__c,Field1__c,Field2__c
+sfdc_acct_ctct,sfdc,sfdc_acct,sfdc_ctct,1:+,reference,,,AccountId
+sfdc_acct_oppt,sfdc,sfdc_acct,sfdc_oppt,1:+,reference,,,AccountId
+sfdc_oppt_ctct,sfdc,sfdc_oppt,sfdc_ctct,+:+,junction,OpportunityContactRole,OpportunityId,ContactId

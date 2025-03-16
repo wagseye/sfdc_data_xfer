@@ -1,0 +1,7 @@
+Name,Display_Name__c,API_Name__c,Object__c,Data_Type__c,Options__c,Referenced_Object__c,Referenced_Object_Field__c
+sfdc_acct_id,"Id",Id,sfdc_acct,text,,,
+sfdc_acct_name,"Name",Name,sfdc_acct,text,,,
+sfdc_ctct_id,"Id",Id,sfdc_ctct,text,,,
+sfdc_ctct_firstname,"First Name",FirstName,sfdc_ctct,text,,,
+sfdc_ctct_lastname,"Last Name",LastName,sfdc_ctct,text,,,
+sfdc_ctct_email,"email",Email,sfdc_ctct,text,,,

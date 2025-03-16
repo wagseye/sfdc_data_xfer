@@ -1,0 +1,9 @@
+Name,Display_Name__c,API_Name__c,Data_Source__c
+sfdc_acct,"Account",Account,sfdc
+sfdc_ctct,"Contact",Contact,sfdc
+sfdc_oppt,"Opportunity",Opportunity,sfdc
+sfdc_ocr,"Opportunity Contact",OpportunityContactRole,sfdc
+sfdc_oli,"Opportunity Product",OpportunityLineItem,sfdc
+sfdc_pb,"Pricebook",Pricebook2,sfdc
+sfdc_prod,"Product",Product2,sfdc
+sfdc_pbe,"PricebookEntry",PricebookEntry,sfdc
