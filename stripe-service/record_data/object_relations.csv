@@ -1,0 +1,4 @@
+Name,Data_Source__c,Object1__c,Object2__c,Ratio__c,Type__c,Intermediate_Object__c,Field1__c,Field2__c,Extras__c
+strp_pi_cust,strp,strp_pi,strp_cust,+:1,reference,,customer,,"{""fwdAccess"": ""expand""}"
+strp_pi_inv,strp,strp_pi,strp_inv,1:1,reference,,invoice,,"{""fwdAccess"": ""expand""}"
+strp_inv_li,strp,strp_inv,strp_li,1:+,reference,,invoice,,"{""fwdAccess"": ""expand""}"

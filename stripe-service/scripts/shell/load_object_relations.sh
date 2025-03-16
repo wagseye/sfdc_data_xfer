@@ -11,8 +11,9 @@ if [ -z "$PROJECT_HOME" ]; then
     echo "init.sh script has not been called" && exit 1;
 fi
 
-source $STRIPE_SCRIPTS/load_data_sources.sh
-source $STRIPE_SCRIPTS/load_objects.sh
-source $STRIPE_SCRIPTS/load_object_fields.sh
-source $STRIPE_SCRIPTS/load_object_actions.sh
-source $STRIPE_SCRIPTS/load_object_relations.sh
+
+sf cmdt generate records \
+  --csv $STRIPE_PROJ/record_data/object_relations.csv \
+  --type-name Object_Relation \
+  --input-directory=$BASE_HOME/objects/  \
+  --output-directory=$STRIPE_HOME/customMetadata
