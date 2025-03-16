@@ -44,4 +44,8 @@ $RECYCLE.BIN/
 **/.venv/
 **/venv/
 
+# The blank module that can be copied to add new project folders
 /blank-module
+
+# The customMetadata folders that hold generated cmdt records that shouldn't be added to git
+**/customMetadata/
