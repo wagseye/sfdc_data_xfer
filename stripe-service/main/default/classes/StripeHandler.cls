@@ -2,6 +2,7 @@ public with sharing class StripeHandler extends ServiceHandler {
 
     public class StripeQuery extends Query {
         List<String> filters = new List<String>();
+        Set<String> expansions = new Set<String>();
 
         public StripeQuery() {}
 
@@ -37,8 +38,19 @@ public with sharing class StripeHandler extends ServiceHandler {
             this.filters.add(expr);
         }
 
-        public override String toString() {
-            return String.join(filters, ' AND ');
+        public void addExpansion(String objName) {
+            if (String.isBlank(objName)) throw new IllegalArgumentException('Field to expand must be provided');
+            this.expansions.add(objName);
+        }
+
+        public String getQueryString() {
+            if (this.filters != null && !this.filters.isEmpty()) {
+                return String.join(filters, ' AND ');
+            }
+            return null;
+        }
+        public List<String> getExpansions() {
+            return new List<String>(this.expansions);
         }
     }
 
@@ -86,6 +98,10 @@ public with sharing class StripeHandler extends ServiceHandler {
         q.addCondition('amount', '>', 1000);
         q.addCondition('customer', '=', 'cus_Rs7xP84wr6CJPD');
         data.put('query', q.toString());
+        List<String> expansions = q.getExpansions();
+        if (expansions != null && !expansions.isEmpty()) {
+            data.put('expand[]', expansions);
+        }
         return data;
     }
 
