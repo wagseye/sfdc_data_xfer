@@ -173,7 +173,19 @@ public with sharing abstract class ServiceHandler {
         if (method.equalsIgnoreCase('get') || method.equalsIgnoreCase('delete')) {
             List<String> paramList = new List<String>();
             for (String key : data.keySet()) {
-                paramList.add(key + '=' + EncodingUtil.urlEncode(String.valueOf(data.get(key)), 'UTF-8'));
+                Object value = data.get(key);
+                Boolean keyIsList = key.endsWith('[]');
+                Boolean valueIsList = value instanceof List<Object>;
+                if (keyIsList && !valueIsList) throw new IllegalArgumentException('Found list parameter name with scalar value');
+                if (!keyIsList && valueIsList) throw new IllegalArgumentException('Found scalar parameter name with list value');
+                if (keyIsList && valueIsList) {
+                    for (Object listValue : (List<Object>)value) {
+                        paramList.add(key + '=' + EncodingUtil.urlEncode(String.valueOf(listValue), 'UTF-8'));
+                    }
+                }
+                else {
+                    paramList.add(key + '=' + EncodingUtil.urlEncode(String.valueOf(value), 'UTF-8'));
+                }
             }
             endpoint += '?' + String.join(paramList, '&');
         }
