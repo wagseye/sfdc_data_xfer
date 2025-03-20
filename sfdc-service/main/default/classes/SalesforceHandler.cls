@@ -50,10 +50,6 @@ public with sharing class SalesforceHandler extends ServiceHandler {
         return null;
     }
 
-    public override Query createQuery() {
-        return null;
-    }
-
     public SalesforceHandler() {}
 
     public override String getServiceApiName() {

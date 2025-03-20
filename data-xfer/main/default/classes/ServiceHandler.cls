@@ -158,8 +158,6 @@ public with sharing abstract class ServiceHandler {
         return new ServiceResponse(resp);
     }
 
-    public abstract Query createQuery();
-
     public virtual String getEndpoint(DataFlowDefinition dfd) {
         String server = getServer(dfd);
         String path = getPath(dfd);

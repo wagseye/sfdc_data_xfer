@@ -117,10 +117,6 @@ public with sharing class StripeHandler extends ServiceHandler {
         return new StripeResponse(resp);
     }
 
-    public override Query createQuery() {
-        return new StripeQuery();
-    }
-
     public override Map<String,String> getRequestHeaders(DataFlowDefinition dfd) {
         Map<String,String> headers = new Map<String,String>();
         headers.put('Content-Type', 'application/json');
