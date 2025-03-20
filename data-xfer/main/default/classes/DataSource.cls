@@ -1,12 +1,19 @@
 public with sharing virtual class DataSource extends ObjectWrapper {
+    public virtual class Selector extends ObjectWrapper.Selector {
+        public override ObjectWrapper wrap(SObject obj) { return new DataSource((Data_Source__mdt) obj); }
+        public override List<ObjectWrapper> createList() { return new List<DataSource>(); }
+        public virtual override SObject getInstance(String identifier) { return Data_Source__mdt.getInstance(identifier); }
+        public virtual override List<SObject> getAll() { return Data_Source__mdt.getAll().values(); }
+    }
 
     public static DataSource getRecordByName(String name) {
         if (String.isBlank(name)) throw new IllegalArgumentException('Name must be specified');
-        Data_Source__mdt source = Data_Source__mdt.getInstance(name);
-        if (source != null) return new DataSource(source);
-        return null;
+        return (DataSource)ObjectWrapper.getInstance(new Selector(), name);
     }
 
+    public static List<DataSource> getAll() {
+        return (List<DataSource>)ObjectWrapper.getAll(new Selector());
+    }
     public DataSource(Data_Source__mdt src) {
         super(src);
     }
