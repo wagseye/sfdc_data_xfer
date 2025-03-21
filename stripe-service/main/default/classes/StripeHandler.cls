@@ -90,8 +90,9 @@ public with sharing class StripeHandler extends ServiceHandler {
         }
     }
 
-    public override Map<String,Object> getRequestData(DataFlowDefinition dfd) {
-        ExternalObjectAction action = dfd.getAction('query');
+    public override Map<String,Object> getRequestData(DataSource src) {
+        /*
+        ExternalObjectAction action = src.getAction('query');
         if (action == null) throw new StandardException('Could not find Stripe query action for ' + dfd.getExternalObject() + ' object');
         Map<String,Object> data = new Map<String,Object>();
         StripeQuery q = new StripeQuery();
@@ -103,6 +104,7 @@ public with sharing class StripeHandler extends ServiceHandler {
             data.put('expand[]', expansions);
         }
         return data;
+        */ return null;
     }
 
     public override String getServiceApiName() {
@@ -117,18 +119,20 @@ public with sharing class StripeHandler extends ServiceHandler {
         return new StripeResponse(resp);
     }
 
-    public override Map<String,String> getRequestHeaders(DataFlowDefinition dfd) {
+    public override Map<String,String> getRequestHeaders(DataSource src) {
         Map<String,String> headers = new Map<String,String>();
         headers.put('Content-Type', 'application/json');
-        headers.put('Authorization', 'Bearer ' + getApiKey(dfd));
+        // headers.put('Authorization', 'Bearer ' + getApiKey(dfd));
         return headers;
     }
 
-    private String getApiKey(DataFlowDefinition dfd) {
+    private String getApiKey(DataSource src) {
+        /*
         DataSourceInstance dsi = dfd.getDataSourceInstance();
         if (dsi == null) { throw new StandardException('Could not load data source instance from data flow definition'); }
         String apiKey = dsi.getApiSecret();
         if (String.isBlank(apiKey)) throw new StandardException('Data source instance does not have api key set');
         return apiKey;
+        */ return null;
     }
 }

@@ -112,31 +112,31 @@ public with sharing abstract class ServiceHandler {
     //     return resp.getRecords();
     // }
 
-    public virtual List<DataRecord> retrieveRecords(DataFlowDefinition dfd) {
-        ExternalObjectAction action = dfd.getAction('query');
+    public virtual List<DataRecord> retrieveRecords(DataSource src) {
+        //ExternalObjectAction action = dfd.getAction('query');
         return null;
     }
 
-    public virtual void updateRecords(DataFlowDefinition dfd) {
-        ExternalObjectAction action = dfd.getAction('create');
+    public virtual void updateRecords(DataSource src) {
+        //ExternalObjectAction action = dfd.getAction('create');
     }
 
-    public virtual ServiceResponse transferData(DataFlowDefinition dfd) {
-        if (dfd == null) throw new IllegalArgumentException('A valid dfd must be provided');
+    public virtual ServiceResponse transferData(DataSource src) {
+        if (src == null) throw new IllegalArgumentException('A valid DataSource must be provided');
         //String mdName = getObjectActionName(actionName);
         //Object_Action__mdt objAction = Object_Action__mdt.getInstance(mdName);
         //if (objAction == null) throw new IllegalArgumentException('No object action record found with the name ' + mdName);
         HttpRequest req = new HttpRequest();
 
-        String endpoint = getEndpoint(dfd);
+        String endpoint = getEndpoint(src);
         System.debug('Setting endpoint: ' + endpoint);
         req.setEndpoint(endpoint);
 
-        String method = getHttpMethod(dfd);
+        String method = getHttpMethod(src);
         System.debug('Setting http method: ' + method);
         req.setMethod(method);
 
-        Map<String,String> headers = getRequestHeaders(dfd);
+        Map<String,String> headers = getRequestHeaders(src);
         if (headers != null) {
             for (String name : headers.keySet()) {
                 if (String.isBlank(name)) throw new IllegalArgumentException('Http header names must not be blank');
@@ -145,7 +145,7 @@ public with sharing abstract class ServiceHandler {
             }
         }
 
-        String body = getRequestBody(dfd);
+        String body = getRequestBody(src);
         System.debug('Setting body to: ' + body);
         if (String.isNotBlank(body)) req.setBody(body);
         
@@ -158,15 +158,15 @@ public with sharing abstract class ServiceHandler {
         return new ServiceResponse(resp);
     }
 
-    public virtual String getEndpoint(DataFlowDefinition dfd) {
-        String server = getServer(dfd);
-        String path = getPath(dfd);
+    public virtual String getEndpoint(DataSource src) {
+        String server = getServer(src);
+        String path = getPath(src);
         String endpoint = server + path;
 
-        Map<String,Object> data = this.getRequestData(dfd);
+        Map<String,Object> data = this.getRequestData(src);
         if ((data == null) || data.isEmpty()) return endpoint;
 
-        String method = this.getHttpMethod(dfd);
+        String method = this.getHttpMethod(src);
         // Get and Delete aren't supposed to have bodies. The parameters should be appended to the URL.
         if (method.equalsIgnoreCase('get') || method.equalsIgnoreCase('delete')) {
             List<String> paramList = new List<String>();
@@ -190,26 +190,26 @@ public with sharing abstract class ServiceHandler {
         return endpoint;
     }
 
-    public virtual String getServer(DataFlowDefinition dfd) {
-        return dfd.getDataSource().getBasePath();
+    public virtual String getServer(DataSource src) {
+        return src.getBasePath();
     }
 
-    public virtual String getPath(DataFlowDefinition dfd) {
+    public virtual String getPath(DataSource src) {
         return null; //dfd.getDefaultAction().getPath();
     }
 
-    public virtual String getHttpMethod(DataFlowDefinition dfd) {
+    public virtual String getHttpMethod(DataSource src) {
         return null; //dfd.getDefaultAction().getMethod();
     }
 
-    public virtual Map<String,String> getRequestHeaders(DataFlowDefinition dfd) {
+    public virtual Map<String,String> getRequestHeaders(DataSource src) {
         return null;
     }
 
-    public virtual String getRequestBody(DataFlowDefinition dfd) {
-        Map<String,Object> data = this.getRequestData(dfd);
+    public virtual String getRequestBody(DataSource src) {
+        Map<String,Object> data = this.getRequestData(src);
         if ((data != null) && !data.isEmpty()) {
-            String method = this.getHttpMethod(dfd);
+            String method = this.getHttpMethod(src);
             // Get and Delete aren't supposed to have bodies. The parameters should be appended to the URL. This right
             // here is a bit of a placeholder until more specific rules are determined
             if (!method.equalsIgnoreCase('get') && !method.equalsIgnoreCase('delete')) {
@@ -222,7 +222,7 @@ public with sharing abstract class ServiceHandler {
         return null;
     }
 
-    public virtual Map<String,Object> getRequestData(DataFlowDefinition dfd) {
+    public virtual Map<String,Object> getRequestData(DataSource src) {
         return null;
     }
 
