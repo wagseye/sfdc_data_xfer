@@ -6,6 +6,11 @@ public with sharing virtual class DataRecord {
         this.record = record;
     }
 
+    // TODO: this method is a temporary solution, we need to figure out a better system
+    public virtual String getString(String fldName) {
+        return (String)this.record.get(fldName);
+    }
+
     public virtual Object get(ExternalObjectField fld) {
         switch on fld.getType().toLowerCase() {
             when 'text' {
@@ -15,6 +20,53 @@ public with sharing virtual class DataRecord {
                 throw new StandardException('Unrecognized field type: ' + fld.getType());
             }
         }
+    }
+
+    public virtual DataRecord getChild(String fldName) {
+        if (String.isBlank(fldName)) throw new StandardException('A valid field name must be provided');
+        List<String> fldComponents = fldName.split('\\.'); // String.split() uses regex so we need to escape the dot
+        Map<String,Object> currentMap = this.record;
+        for (String fldComponent : fldComponents) {
+            if (!currentMap.containsKey(fldComponent)) throw new StandardException('Record does not contain the field "' + fldComponent + '"');
+            Object value = currentMap.get(fldComponent);
+            if (value == null) return null;
+            if (!(value instanceof Map<String,Object>)) throw new StandardException('Child component ' + fldComponent + ' is not an object');
+            currentMap = (Map<String,Object>)value;
+        }
+        return new DataRecord(currentMap);
+    }
+
+    public virtual List<DataRecord> getChildren(String fldName) {
+        if (String.isBlank(fldName)) throw new StandardException('A valid field name must be provided');
+        List<String> fldComponents = fldName.split('\\.'); // String.split() uses regex so we need to escape the dot
+        Map<String,Object> currentMap = this.record;
+        List<Map<String,Object>> childObjs;
+        List<Object> listObjects;
+
+        for (Integer i = 0; i < fldComponents.size(); i++) {
+            String fldComponent = fldComponents[i];
+            Boolean isLast = (i == (fldComponents.size() - 1));
+
+            if (!currentMap.containsKey(fldComponent)) throw new StandardException('Record does not contain the field "' + fldComponent + '"');
+            Object value = currentMap.get(fldComponent);
+            if (value == null) return null;
+            if (isLast) {
+                if (!(value instanceof List<Object>)) throw new StandardException('Child component ' + fldComponent + ' is not a list of objects');
+                listObjects = (List<Object>)value;
+            } else {
+                if (!(value instanceof Map<String,Object>)) throw new StandardException('Child component ' + fldComponent + ' is not an object');
+                currentMap = (Map<String,Object>)value;
+            }
+        }
+        if (listObjects != null) {
+            List<DataRecord> children = new List<DataRecord>();
+            for (Object obj : listObjects) {
+                if (!(obj instanceof Map<String,Object>)) throw new StandardException('Child record is not a map');
+                children.add(new DataRecord((Map<String,Object>)obj));
+            }
+            return children;
+        }
+        return null;
     }
 
     public virtual void set(String fldName, Object value, String fieldType) {
