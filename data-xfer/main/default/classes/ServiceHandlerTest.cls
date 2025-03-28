@@ -1,5 +1,5 @@
 @isTest
-private class ServiceHandlerTest {
+public class ServiceHandlerTest {
     /************************************************************************/
     /*  Utiltiy methods and classes
     /************************************************************************/
@@ -9,7 +9,7 @@ private class ServiceHandlerTest {
         DataTransfer.init();
     }
 
-    private static SObject createMetadataRecord(SObjectType t, Map<String,Object> data) {
+    public static SObject createMetadataRecord(SObjectType t, Map<String,Object> data) {
         if ((t == null) || !t.toString().endsWith('__mdt')) throw new IllegalArgumentException('Provided SObjectType is not a metadata type');
         String name = (String)data.get('DeveloperName');
         if (String.isBlank(name)) throw new IllegalArgumentException('Metadata DeveloperName field must be provided');
@@ -53,6 +53,7 @@ private class ServiceHandlerTest {
     public class TestSelector extends ObjectWrapper.Selector {
         protected ObjectWrapper.Selector typeSelector;
         List<SObject> records;
+        Map<String,SObject> mapRecords;
 
         public TestSelector( ObjectWrapper.Selector typeSelector, SObject record) {
             this.typeSelector = typeSelector;
@@ -62,12 +63,18 @@ private class ServiceHandlerTest {
             this.typeSelector = typeSelector;
             this.records = records;
         }
+        public TestSelector( ObjectWrapper.Selector typeSelector, Map<String,SObject> records) {
+            this.typeSelector = typeSelector;
+            this.mapRecords = records;
+        }
         public override ObjectWrapper wrap(SObject obj) { return this.typeSelector.wrap(obj); }
         public override List<ObjectWrapper> createList() { return this.typeSelector.createList(); }
-
-        public override SObject getInstance(String identifier) { return records[0]; }
-        public override List<SObject> getAll() { return records; }
-        public override List<SObject> query() { return records; }
+        public override SObject getInstance(String identifier) {
+            if (mapRecords != null) return mapRecords.get(identifier);
+            return records[0];
+        }
+        public override List<SObject> getAll() { return (mapRecords != null) ? mapRecords.values() : records; }
+        public override List<SObject> query() { return getAll(); }
     }
 
     public class ServiceHandlerMock extends ServiceHandler {
