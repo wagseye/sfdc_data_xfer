@@ -1,19 +1,15 @@
 public with sharing class Configuration {
     public class MappedObject {
-        private Object_Relation__mdt parentRelationObject;
-
         public String objectName;
         public List<TargetObject> targetObjects;
         public String parentRelation;
         public List<MappedObject> childObjects;
 
-        public Object_Relation__mdt getParentRelation() {
+        public ObjectRelation getParentRelation() {
             if (String.isNotBlank(this.parentRelation)) {
-                if (this.parentRelationObject == null) {
-                    this.parentRelationObject = Object_Relation__mdt.getInstance(this.parentRelation);
-                    if (this.parentRelationObject == null) throw new StandardException('Could not find object relation with name ' + this.parentRelation);
-                }
-                return this.parentRelationObject;
+                ObjectRelation rel = ObjectRelation.getRecordByName(this.parentRelation);
+                if (rel == null) throw new StandardException('Unable to find object relation with the name ' + this.parentRelation);
+                return rel;
             }
             return null;
         }
