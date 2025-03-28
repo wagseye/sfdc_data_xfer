@@ -57,7 +57,7 @@ public with sharing class DataFlowDefinition extends ObjectWrapper {
         DataSource ds = this.getDataSource();
         if (ds == null) throw new StandardException('Unable to find the data source for this data flow definition');
         ServiceHandler handler = ds.getHandler();
-        handler.transferData(this);
+        handler.transferData(ds);
     }
 
     public Datetime getLastRunTimestamp(Boolean successOnly)
