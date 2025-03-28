@@ -54,6 +54,31 @@ public with sharing class StripeHandler extends ServiceHandler {
         }
     }
 
+    public List<String> getExpansions(Configuration cfg) {
+        if (cfg == null) throw new StandardException('A configuration object must be provided');
+        if (cfg.sourceSystem != getServiceApiName()) throw new StandardException('Source system is not Stripe');
+        List<String> expansions = new List<String>();
+        if (cfg.sourceTree != null) {
+            String objPath = cfg.sourceTree.objectName;
+            if (String.isBlank(objPath)) throw new StandardException('Configuration source tree does not have objectName set');
+            this.addExpansionsRecursive(cfg.sourceTree, objPath, expansions);
+        }
+        return expansions;
+    }
+
+    private void addExpansionsRecursive(Configuration.MappedObject obj, String objPath, List<String> expansions) {
+        if ((obj == null) || (obj.childObjects == null)) return;
+        for (Configuration.MappedObject chld : obj.childObjects) {
+            String chldName = chld.objectName;
+            if (String.isBlank(chldName)) throw new StandardException('Child object does not have objectName set');
+            String chldPath = objPath + '.' + chldName;
+            if (this.getRelationAccess(chld.getParentRelation()) == 'expand') {
+                expansions.add(chldPath);
+            }
+            addExpansionsRecursive(chld, chldPath, expansions);
+        }
+    }
+
     public class StripeResponse extends ServiceResponse {
         List<DataRecord> records;
         protected Map<String,Object> responseObject;
@@ -88,6 +113,16 @@ public with sharing class StripeHandler extends ServiceHandler {
             lst.add(responseObject);
             return lst;
         }
+    }
+
+    public String getRelationAccess(ObjectRelation rel) {
+        if (rel != null) {
+            Map<String,Object> extras = rel.getExtras();
+            if (extras != null) {
+                return (String)extras.get('forwardAccess');
+            }
+        }
+        return null;
     }
 
     public override Map<String,Object> getRequestData(DataSource src) {
