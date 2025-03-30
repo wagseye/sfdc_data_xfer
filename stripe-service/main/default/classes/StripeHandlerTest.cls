@@ -10,7 +10,7 @@ private class StripeHandlerTest {
 
     private static Object_Relation__mdt createObjectRelation(String name, String dataSource, String access) {
         Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource, 'Extras__c' => '{ "forwardAccess":"' + access + '"}' };
-        return (Object_Relation__mdt)ServiceHandlerTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
+        return (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
     }
 
     public static void addObjectRelations() {
@@ -18,7 +18,7 @@ private class StripeHandlerTest {
         for (Object_Relation__mdt rel : getObjectRelations()) {
             mapRels.put(rel.DeveloperName, rel);
         }
-        ObjectWrapper.setMock(new ServiceHandlerTest.TestSelector(ObjectRelation.class, mapRels));
+        ObjectWrapper.setMock(new ObjectWrapperTest.TestSelector(ObjectRelation.class, mapRels));
     }
 
     public static String getTestConfigString() {

@@ -9,23 +9,14 @@ public class ServiceHandlerTest {
         DataTransfer.init();
     }
 
-    public static SObject createMetadataRecord(SObjectType t, Map<String,Object> data) {
-        if ((t == null) || !t.toString().endsWith('__mdt')) throw new IllegalArgumentException('Provided SObjectType is not a metadata type');
-        String name = (String)data.get('DeveloperName');
-        if (String.isBlank(name)) throw new IllegalArgumentException('Metadata DeveloperName field must be provided');
-        SObject sobj = t.newSObject();
-        for (String fldName : data.keySet()) sobj.put(fldName, data.get(fldName));
-        return sobj;
-    }
-
     private static Data_Source__mdt createDataSource(String name, String displayName, String handlerClass, String baseUrl, String apiVersion) {
         Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Display_Name__c' => displayName, 'Handler_Class__c' => handlerClass, 'Base_Url__c' => baseUrl, 'API_Version__c' => apiVersion };
-        return (Data_Source__mdt)createMetadataRecord(Data_Source__mdt.getSObjectType(), data);
+        return (Data_Source__mdt)ObjectWrapperTest.createMetadataRecord(Data_Source__mdt.getSObjectType(), data);
     }
 
     public static void addTestDataSource() {
         Data_Source__mdt ds = createDataSource('test', 'TestDataSource', 'ServiceHandlerTest.ServiceHandlerMock', 'https://test.com', '1');
-        ObjectWrapper.setMock(new TestSelector(DataSource.class, ds));
+        ObjectWrapper.setMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds));
     }
 
     public static String getTestConfigString() {
@@ -48,32 +39,6 @@ public class ServiceHandlerTest {
         '  "label": "opportunity1"' +
         '}' +
         '}';
-    }
-
-    public class TestSelector extends ObjectWrapper.Selector {
-        // TestSelector keeps its own copy of the query results in list or map format so it can decide which record(s) to return
-        // instead of using ObjectWrapper.Selector.setQueryResults()
-        List<SObject> records;
-        Map<String,SObject> mapRecords;
-
-        public TestSelector(Type t, SObject record) {
-            super(t);
-            this.records = new List<SObject>{ record };
-        }
-        public TestSelector(Type t, List<SObject> records) {
-            super(t);
-            this.records = records;
-        }
-        public TestSelector(Type t, Map<String,SObject> records) {
-            super(t);
-            this.mapRecords = records;
-        }
-        public override SObject getInstance(String identifier) {
-            if (mapRecords != null) return mapRecords.get(identifier);
-            return records[0];
-        }
-        public override List<SObject> getAll() { return (mapRecords != null) ? mapRecords.values() : records; }
-        public override List<SObject> query() { return getAll(); }
     }
 
     public class ServiceHandlerMock extends ServiceHandler {
