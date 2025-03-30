@@ -4,19 +4,9 @@ public class ServiceHandlerTest {
     /*  Utility methods and classes
     /************************************************************************/
     public static void setupTest() {
-        addTestDataSource();
+        DataSourceTest.addTestDataSource();
         DataTransfer.configString = getTestConfigString();
         DataTransfer.init();
-    }
-
-    private static Data_Source__mdt createDataSource(String name, String displayName, String handlerClass, String baseUrl, String apiVersion) {
-        Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Display_Name__c' => displayName, 'Handler_Class__c' => handlerClass, 'Base_Url__c' => baseUrl, 'API_Version__c' => apiVersion };
-        return (Data_Source__mdt)ObjectWrapperTest.createMetadataRecord(Data_Source__mdt.getSObjectType(), data);
-    }
-
-    public static void addTestDataSource() {
-        Data_Source__mdt ds = createDataSource('test', 'TestDataSource', 'ServiceHandlerTest.ServiceHandlerMock', 'https://test.com', '1');
-        ObjectWrapper.setMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds));
     }
 
     public static String getTestConfigString() {
@@ -100,7 +90,7 @@ public class ServiceHandlerTest {
 
     @isTest
     static void testHttpGetParameterErrors() {
-        addTestDataSource();
+        DataSourceTest.addTestDataSource();
 
         setupTest();
         DataSource src = DataTransfer.sourceSystem;
