@@ -1,23 +1,19 @@
 public with sharing virtual class ObjectRelation extends ObjectWrapper {
     public virtual class Selector extends ObjectWrapper.Selector {
-        private List<Object_Relation__mdt> queryResults;
-        public Selector() {}
-        public Selector(List<Object_Relation__mdt> queryResults) { this.queryResults = queryResults; }
-        public override ObjectWrapper wrap(SObject obj) { return new ObjectRelation((Object_Relation__mdt) obj); }
-        public override List<ObjectWrapper> createList() { return new List<ObjectRelation>(); }
-        public virtual override SObject getInstance(String identifier) { return Object_Relation__mdt.getInstance(identifier); }
+        public Selector() { super(ObjectRelation.class); }
+        public virtual override SObject getInstance(String name) { return Object_Relation__mdt.getInstance(name); }
         public virtual override List<SObject> getAll() { return Object_Relation__mdt.getAll().values(); }
-        public virtual override List<SObject> query() { return queryResults; }
     }
 
     public static ObjectRelation getRecordByName(String name) {
-        if (String.isBlank(name)) throw new IllegalArgumentException('Name must be specified');
         return (ObjectRelation)ObjectWrapper.getInstance(new Selector(), name);
     }
 
     public static List<ObjectRelation> getAll() {
         return (List<ObjectRelation>)ObjectWrapper.getAll(new Selector());
     }
+
+    public ObjectRelation() {}
     public ObjectRelation(Object_Relation__mdt src) {
         super(src);
     }
@@ -32,7 +28,8 @@ public with sharing virtual class ObjectRelation extends ObjectWrapper {
     public Map<String,Object> getExtras() {
         try {
             return (Map<String,Object>)JSON.deserializeUntyped((String)this.get('Extras__c'));
-        } catch (Exception e) {
+        } catch (JSONException ex) {
+            System.debug('ObjectRelation.Extras contains invalid JSON');
             return null;
         }
     }

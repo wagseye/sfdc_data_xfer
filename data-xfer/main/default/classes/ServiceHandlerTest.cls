@@ -1,7 +1,7 @@
 @isTest
 public class ServiceHandlerTest {
     /************************************************************************/
-    /*  Utiltiy methods and classes
+    /*  Utility methods and classes
     /************************************************************************/
     public static void setupTest() {
         addTestDataSource();
@@ -25,7 +25,7 @@ public class ServiceHandlerTest {
 
     public static void addTestDataSource() {
         Data_Source__mdt ds = createDataSource('test', 'TestDataSource', 'ServiceHandlerTest.ServiceHandlerMock', 'https://test.com', '1');
-        ObjectWrapper.setMock(new TestSelector(new DataSource.Selector(), ds));
+        ObjectWrapper.setMock(new TestSelector(DataSource.class, ds));
     }
 
     public static String getTestConfigString() {
@@ -51,24 +51,23 @@ public class ServiceHandlerTest {
     }
 
     public class TestSelector extends ObjectWrapper.Selector {
-        protected ObjectWrapper.Selector typeSelector;
+        // TestSelector keeps its own copy of the query results in list or map format so it can decide which record(s) to return
+        // instead of using ObjectWrapper.Selector.setQueryResults()
         List<SObject> records;
         Map<String,SObject> mapRecords;
 
-        public TestSelector( ObjectWrapper.Selector typeSelector, SObject record) {
-            this.typeSelector = typeSelector;
+        public TestSelector(Type t, SObject record) {
+            super(t);
             this.records = new List<SObject>{ record };
         }
-        public TestSelector( ObjectWrapper.Selector typeSelector, List<SObject> records) {
-            this.typeSelector = typeSelector;
+        public TestSelector(Type t, List<SObject> records) {
+            super(t);
             this.records = records;
         }
-        public TestSelector( ObjectWrapper.Selector typeSelector, Map<String,SObject> records) {
-            this.typeSelector = typeSelector;
+        public TestSelector(Type t, Map<String,SObject> records) {
+            super(t);
             this.mapRecords = records;
         }
-        public override ObjectWrapper wrap(SObject obj) { return this.typeSelector.wrap(obj); }
-        public override List<ObjectWrapper> createList() { return this.typeSelector.createList(); }
         public override SObject getInstance(String identifier) {
             if (mapRecords != null) return mapRecords.get(identifier);
             return records[0];
