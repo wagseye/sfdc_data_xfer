@@ -13,7 +13,7 @@ public with sharing virtual class DataSource extends ObjectWrapper {
         return (List<DataSource>)ObjectWrapper.getAll(new Selector());
     }
 
-    public static List<DataSource> queryExternalRecords(String name) {
+    public static List<DataSource> queryExternalSources() {
         Selector sltr = new Selector();
         sltr.setQueryResults([SELECT Id, DeveloperName, Display_Name__c, Handler_Class__c FROM Data_Source__mdt WHERE DeveloperName!='sfdc']);
         return (List<DataSource>)ObjectWrapper.query(sltr);
