@@ -3,14 +3,14 @@ public class DataSourceTest {
     /************************************************************************/
     /*  Utility methods and classes
     /************************************************************************/
-    private static Data_Source__mdt createDataSource(String name, String displayName, String handlerClass, String baseUrl, String apiVersion) {
+    public static Data_Source__mdt createDataSource(String name, String displayName, String handlerClass, String baseUrl, String apiVersion) {
         Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Display_Name__c' => displayName, 'Handler_Class__c' => handlerClass, 'Base_Url__c' => baseUrl, 'API_Version__c' => apiVersion };
         return (Data_Source__mdt)ObjectWrapperTest.createMetadataRecord(Data_Source__mdt.getSObjectType(), data);
     }
 
     public static void addTestDataSource() {
         Data_Source__mdt ds = createDataSource('test', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
-        ObjectWrapper.setMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds));
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds));
     }
 
 

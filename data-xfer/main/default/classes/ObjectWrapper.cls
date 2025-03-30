@@ -1,6 +1,6 @@
 public with sharing abstract class ObjectWrapper {
     public abstract class Selector {
-        private Type wrapperClass;
+        public Type wrapperClass { public get; private set; }
         private List<SObject> queryResults;
 
         protected Selector(Type wrapperClass) {
@@ -36,14 +36,19 @@ public with sharing abstract class ObjectWrapper {
     }
 
     protected SObject record;
-    private static Selector mockSelector;
-    @TestVisible private static void setMock(Selector selector) { mockSelector = selector; }
+    private static Map<Type,Selector> mockSelectors;
+    @TestVisible private static void addMock(Selector selector) {
+        if (selector == null) throw new StandardException('A valid selector must be provided');
+        if (mockSelectors == null) mockSelectors = new Map<Type,Selector>();
+        Type t = selector.wrapperClass;
+        mockSelectors.put(t, selector);
+    }
 
-    private static Selector getActiveSelector(Selector selector) { return getActiveSelector(mockSelector, selector); }
-    private static Selector getActiveSelector(Selector selector1, Selector selector2) {
-        if (selector1 != null) return selector1;
-        if (selector2 != null) return selector2;
-        throw new StandardException('No valid selector found');
+    private static Selector getActiveSelector(Selector selector) {
+        if (mockSelectors == null) return selector;
+        Selector sltr = mockSelectors.get(selector.wrapperClass);
+        if (sltr == null) throw new StandardException('Mocks have been added but did not find one for the class ' + selector.wrapperClass);
+        return sltr;
     }
 
     // SFDC doesn't allow protected static functions(?!!?) so these methods have to be public

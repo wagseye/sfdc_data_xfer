@@ -67,27 +67,75 @@ public class ObjectWrapperTest {
     /************************************************************************/
     @isTest
     static void testAccessor() {
-        Account acct = new Account(Name = 'acct');
-        TestWrapper wrapper = new TestWrapper(acct);
-        System.assertEquals('acct', wrapper.getName());
+        Test.startTest();
+        {
+            Account acct = new Account(Name = 'acct');
+            TestWrapper wrapper = new TestWrapper(acct);
+            System.assertEquals('acct', wrapper.getName());
+        }
+        Test.stopTest();
     }
 
     @isTest
     static void testSelector() {
-        Account acct = new Account(Name = 'acct');
-        // Salesforce doesn't allow inner classes to have static methods, so we instantiate an object to call the methods that would
-        // normally be statice
-        TestWrapper testWrapper = new TestWrapper(acct); 
-        TestWrapper wrapper = testWrapper.getRecordByName('foo');
-        System.assertNotEquals(null, wrapper);
-        System.assertEquals('TestAccount', wrapper.getName());
+        Test.startTest();
+        {
+            Account acct = new Account(Name = 'acct');
+            // Salesforce doesn't allow inner classes to have static methods, so we instantiate an object to call the methods that would
+            // normally be statice
+            TestWrapper testWrapper = new TestWrapper(acct); 
+            TestWrapper wrapper = testWrapper.getRecordByName('foo');
+            System.assertNotEquals(null, wrapper);
+            System.assertEquals('TestAccount', wrapper.getName());
 
-        List<TestWrapper> wrappers = testWrapper.getAll();
-        System.assertEquals(1, wrappers.size());
-        System.assertEquals('TestAccount', wrappers[0].getName());
+            List<TestWrapper> wrappers = testWrapper.getAll();
+            System.assertEquals(1, wrappers.size());
+            System.assertEquals('TestAccount', wrappers[0].getName());
 
-        wrappers = testWrapper.query();
-        System.assertEquals(1, wrappers.size());
-        System.assertEquals('TestAccount', wrappers[0].getName());
+            wrappers = testWrapper.query();
+            System.assertEquals(1, wrappers.size());
+            System.assertEquals('TestAccount', wrappers[0].getName());
+        }
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testTestSelectors() {
+        Test.startTest();
+        {
+            Data_Source__mdt ds1_m = DataSourceTest.createDataSource('testSource1', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
+            TestSelector sel1 = new ObjectWrapperTest.TestSelector(DataSource.class, ds1_m);
+            ObjectWrapper.addMock(sel1);
+
+            Object_Relation__mdt rel1_m = ObjectRelationTest.createObjectRelation('testRelation1', 'strp', 'junction');
+            TestSelector sel2 = new ObjectWrapperTest.TestSelector(ObjectRelation.class, rel1_m);
+            ObjectWrapper.addMock(sel2);
+
+            DataSource ds = DataSource.getRecordByName('foo');
+            System.assertEquals('testSource1', ds.getApiName());
+
+            ObjectRelation rel = ObjectRelation.getRecordByName('foo');
+            System.assertEquals('testRelation1', rel.getApiName());
+
+            Map<String,Data_Source__mdt> mapSrcs = new Map<String,Data_Source__mdt>{ 'testSource1' => ds1_m,
+                'testSource2' => DataSourceTest.createDataSource('testSource2', 'TestDataSource', null, null, null)
+            };
+            ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, mapSrcs));
+
+            // Make sure we can pull out the two new records
+            ds = DataSource.getRecordByName('testSource1');
+            System.assertEquals('testSource1', ds.getApiName());
+            ds = DataSource.getRecordByName('testSource2');
+            System.assertEquals('testSource2', ds.getApiName());
+
+            // Make sure the old mock is no longer in place
+            ds = DataSource.getRecordByName('foo');
+            System.assertEquals(null, ds);
+
+            // Make sure the other mock was not changed
+            rel = ObjectRelation.getRecordByName('foo');
+            System.assertEquals('testRelation1', rel.getApiName());
+        }
+        Test.stopTest();
     }
 }
