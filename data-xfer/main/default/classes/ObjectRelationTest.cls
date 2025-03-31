@@ -30,13 +30,36 @@ public class ObjectRelationTest {
     /************************************************************************/
     @isTest
     static void testAccessors() {
-        Object_Relation__mdt orm = createObjectRelation('relation', 'strp', 'junction');
-        ObjectRelation rel = new ObjectRelation(orm);
+        // Create the metadata inner record
+        Map<String,Object> data = new Map<String,Object>{
+            'DeveloperName' => 'myRelation',
+            'Data_Source__c' => 'svc',
+            'Field1__c' => 'f1',
+            'Field2__c' => 'f2',
+            'Intermediate_Object__c' => 'intObj',
+            'Ratio__c' => '1:1',
+            'Type__c' => 'lookup',
+            'Extras__c' => '{ "forwardAccess":"expand"}' };
+        Object_Relation__mdt rel_m = (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
+
+        // Create the wrapper object
+        ObjectRelation rel = new ObjectRelation(rel_m);
+
+        // Create a mock to load the data source
+        Data_Source__mdt ds_m = DataSourceTest.createDataSource('svc', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), null, null);
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds_m));
 
         Test.startTest();
         {
-            System.assertEquals('relation', rel.getApiName());
-            // System.assertEquals('strp', ds.());
+            System.assertEquals('myRelation', rel.getApiName());
+            System.assertEquals('f1', rel.getField1());
+            System.assertEquals('f2', rel.getField2());
+            System.assertEquals('intObj', rel.getIntermediateObject());
+            System.assertEquals('1:1', rel.getRatio());
+            System.assertEquals('lookup', rel.getType());
+            DataSource src = rel.getDataSource();
+            System.assertNotEquals(null, src);
+            System.assertEquals('svc', src.getApiName());
         }
         Test.stopTest();
     }

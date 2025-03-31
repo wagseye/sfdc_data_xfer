@@ -18,12 +18,24 @@ public with sharing virtual class ObjectRelation extends ObjectWrapper {
         super(src);
     }
 
+    public DataSource getDataSource() {
+        string dsName = (String)this.get('Data_Source__c');
+        if (String.isNotBlank(dsName)) {
+            DataSource ds = DataSource.getRecordByName(dsName);
+            if (ds == null) throw new StandardException('Did not find DataSource with name ' + dsName);
+            return ds;
+        }
+        return null;
+    }
+
     public String getField1() { return (String)this.get('Field1__c'); }
     public String getField2() { return (String)this.get('Field2__c'); }
+    public String getIntermediateObject() { return (String)this.get('Intermediate_Object__c'); }
+    public String getRatio() { return (String)this.get('Ratio__c'); }
+    public String getType() { return (String)this.get('Type__c'); }
     public ExternalObject getObject1() { return this.getObject('Object1__c'); }
     public ExternalObject getObject2() { return this.getObject('Object2__c'); }
 
-    public String getIntermediateObject() { return (String)this.get('Intermediate_Object__c'); }
 
     public Map<String,Object> getExtras() {
         try {
