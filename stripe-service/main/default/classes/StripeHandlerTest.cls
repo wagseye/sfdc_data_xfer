@@ -18,7 +18,7 @@ private class StripeHandlerTest {
         for (Object_Relation__mdt rel : getObjectRelations()) {
             mapRels.put(rel.DeveloperName, rel);
         }
-        ObjectWrapper.setMock(new ObjectWrapperTest.TestSelector(ObjectRelation.class, mapRels));
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ObjectRelation.class, mapRels));
     }
 
     public static String getTestConfigString() {
