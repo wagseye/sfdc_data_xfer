@@ -9,8 +9,8 @@ public class DataSourceTest {
     }
 
     public static void addTestDataSource() {
-        Data_Source__mdt ds = createDataSource('test', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
-        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds));
+        Data_Source__mdt ds_m = createDataSource('test', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds_m));
     }
 
 
@@ -19,8 +19,8 @@ public class DataSourceTest {
     /************************************************************************/
     @isTest
     static void testAccessors() {
-        Data_Source__mdt dsm = createDataSource('test', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
-        DataSource ds = new DataSource(dsm);
+        Data_Source__mdt ds_m = createDataSource('test', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
+        DataSource ds = new DataSource(ds_m);
 
         Test.startTest();
         {
