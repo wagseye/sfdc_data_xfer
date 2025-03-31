@@ -104,12 +104,10 @@ public class ObjectWrapperTest {
         Test.startTest();
         {
             Data_Source__mdt ds1_m = DataSourceTest.createDataSource('testSource1', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
-            TestSelector sel1 = new ObjectWrapperTest.TestSelector(DataSource.class, ds1_m);
-            ObjectWrapper.addMock(sel1);
+            ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds1_m));
 
             Object_Relation__mdt rel1_m = ObjectRelationTest.createObjectRelation('testRelation1', 'strp', 'junction');
-            TestSelector sel2 = new ObjectWrapperTest.TestSelector(ObjectRelation.class, rel1_m);
-            ObjectWrapper.addMock(sel2);
+            ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ObjectRelation.class, rel1_m));
 
             DataSource ds = DataSource.getRecordByName('foo');
             System.assertEquals('testSource1', ds.getApiName());
