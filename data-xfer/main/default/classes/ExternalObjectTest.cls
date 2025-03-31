@@ -1,5 +1,5 @@
 @isTest
-private class ExternalObjectTest {
+public class ExternalObjectTest {
     /************************************************************************/
     /*  Utility methods and classes
     /************************************************************************/
