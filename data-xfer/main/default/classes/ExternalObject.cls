@@ -18,6 +18,7 @@ public with sharing class ExternalObject extends ObjectWrapper {
         super(src);
     }
 
+    public String getName() { return (String)this.get('DeveloperName'); }
     public override String getApiName() { return (String)this.get('API_Name__c'); }
     public String getDisplayName() { return (String)this.get('Display_Name__c'); }
     public DataSource getDataSource() {
