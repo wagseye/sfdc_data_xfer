@@ -5,8 +5,9 @@ public class ServiceHandlerTest {
     /************************************************************************/
     public static void setupTest() {
         DataSourceTest.addTestDataSource();
-        DataTransfer.configString = getTestConfigString();
-        DataTransfer.init();
+        DataSourceInstanceTest.addTestDataSource();
+        Configuration config = Configuration.fromString(getTestConfigString());
+        DataTransfer.init(config);
     }
 
     public static String getTestConfigString() {
