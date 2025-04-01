@@ -1,4 +1,8 @@
 public with sharing abstract class ServiceHandler {
+    static final Set<String> HTTP_METHODS = new Set<String>{ 'GET', 'POST', 'PUT', 'PATCH', 'DELETE' };
+    protected Configuration config;
+    protected DataSource dataSource;
+    protected DataSourceInstance dataSourceInstance;
 
     public abstract class ServiceObject {
         public abstract String getApiName();
@@ -168,6 +172,8 @@ public with sharing abstract class ServiceHandler {
         if ((data == null) || data.isEmpty()) return endpoint;
 
         String method = this.getHttpMethod(src);
+        if (!HTTP_METHODS.contains(method.toUpperCase())) throw new StandardException('Invalid http method: ' + method);
+
         // Get and Delete aren't supposed to have bodies. The parameters should be appended to the URL.
         if (method.equalsIgnoreCase('get') || method.equalsIgnoreCase('delete')) {
             List<String> paramList = new List<String>();
@@ -200,7 +206,8 @@ public with sharing abstract class ServiceHandler {
     }
 
     public virtual String getHttpMethod(DataSource src) {
-        return null; //dfd.getDefaultAction().getMethod();
+        // Default to GET here, subclasses can override
+        return 'GET';
     }
 
     public virtual Map<String,String> getRequestHeaders(DataSource src) {
