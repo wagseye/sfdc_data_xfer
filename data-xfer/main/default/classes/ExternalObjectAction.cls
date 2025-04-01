@@ -25,4 +25,17 @@ public with sharing class ExternalObjectAction  extends ObjectWrapper {
     public String getAction() { return (String)this.get('Action__c'); }
     public String getMethod() { return (String)this.get('Method__c'); }
     public String getPath() { return (String)this.get('Path__c'); }
+
+    public Map<String,Object> getExtras() {
+        String extras = (String)this.get('Extras__c');
+        if (String.isNotBlank(extras)) {
+            try {
+                return (Map<String,Object>)JSON.deserializeUntyped(extras);
+            } catch (JSONException ex) {
+                System.debug(LoggingLevel.ERROR, 'ExternalObjectAction.Extras contains invalid JSON');
+                return null;
+            }
+        }
+        return null;
+    }
 }
