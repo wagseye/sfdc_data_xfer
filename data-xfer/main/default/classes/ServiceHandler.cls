@@ -70,10 +70,11 @@ public with sharing abstract class ServiceHandler {
         }
     }
 
-    public class ServiceInfo {
-        public ServiceInfo() {
-
-        }
+    // TODO: find a better way to do this!
+    public void init(Configuration config, DataSource dataSource, DataSourceInstance dataSourceInstance) {
+        this.config = config;
+        this.dataSource = dataSource;
+        this.dataSourceInstance = dataSourceInstance;
     }
 
     public virtual List<ServiceObject> getAllObjects() {
