@@ -31,4 +31,12 @@ public with sharing class ExternalObject extends ObjectWrapper {
         return null;
     }
 
+    public ExternalObjectAction getAction(String action) {
+        if (String.isBlank(action)) throw new StandardException('A valid action name must be provided');
+        String actnName = ExternalObjectAction.getActionName(this, action);
+        ExternalObjectAction actn = ExternalObjectAction.getRecordByName(actnName);
+        if (actn == null) throw new StandardException('Could not find an action with name ' + actnName);
+        return actn;
+    }
+
 }
