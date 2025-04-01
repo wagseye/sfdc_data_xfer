@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Extras__c</fullName>
+    <description>A json representation of any relevant options</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Extras</label>
+    <length>32768</length>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

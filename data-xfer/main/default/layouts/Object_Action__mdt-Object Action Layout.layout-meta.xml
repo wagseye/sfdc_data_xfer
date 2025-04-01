@@ -25,6 +25,10 @@
                 <behavior>Edit</behavior>
                 <field>IsProtected</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Extras__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
