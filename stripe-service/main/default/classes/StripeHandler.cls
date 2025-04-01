@@ -59,8 +59,9 @@ public with sharing class StripeHandler extends ServiceHandler {
         if (cfg.sourceSystem != getServiceApiName()) throw new StandardException('Source system is not Stripe');
         List<String> expansions = new List<String>();
         if (cfg.sourceTree != null) {
-            String objPath = cfg.sourceTree.objectName;
-            if (String.isBlank(objPath)) throw new StandardException('Configuration source tree does not have objectName set');
+            String objName = this.config.sourceTree.objectName;
+            ExternalObjectAction actn = this.dataSource.getObject(objName).getAction('query');
+            String objPath = getResultsPrefix(actn);
             this.addExpansionsRecursive(cfg.sourceTree, objPath, expansions);
         }
         return expansions;
@@ -71,7 +72,7 @@ public with sharing class StripeHandler extends ServiceHandler {
         for (Configuration.MappedObject chld : obj.childObjects) {
             String chldName = chld.objectName;
             if (String.isBlank(chldName)) throw new StandardException('Child object does not have objectName set');
-            String chldPath = objPath + '.' + chldName;
+            String chldPath = (String.isNotBlank(objPath) ? objPath + '.' : '') + chldName;
             if (this.getRelationAccess(chld.getParentRelation()) == 'expand') {
                 expansions.add(chldPath);
             }
@@ -94,6 +95,11 @@ public with sharing class StripeHandler extends ServiceHandler {
                         this.records.add(dr);
                     }
                 }
+            } else if (json.containsKey('error')) {
+                Map<String,Object> error = (Map<String,Object>)json.get('error');
+                String errMsg = (String)error.get('message');
+                System.debug('Stripe returned the following error: ' + error);
+                throw new StandardException('Stripe returned an error: ' + errMsg);
             }
             else throw new StandardException('Did not find object key, or value was not search_result');
         }
@@ -115,7 +121,7 @@ public with sharing class StripeHandler extends ServiceHandler {
         }
     }
 
-    public String getRelationAccess(ObjectRelation rel) {
+    private String getRelationAccess(ObjectRelation rel) {
         if (rel != null) {
             Map<String,Object> extras = rel.getExtras();
             if (extras != null) {
@@ -125,21 +131,49 @@ public with sharing class StripeHandler extends ServiceHandler {
         return null;
     }
 
+    private String getResultsPrefix(ExternalObjectAction actn) {
+        if (actn != null) {
+            Map<String,Object> extras = actn.getExtras();
+            if (extras != null) {
+                return (String)extras.get('resultsPrefix');
+            }
+        }
+        return null;
+    }
+
+    public override String getPath(DataSource src) {
+        // TODO: cache the action somewhere; we're using it in multiple methods
+        String objName = this.config.sourceTree.objectName;
+        ExternalObjectAction action = this.dataSource.getObject(objName).getAction('query');
+        if (action == null) throw new StandardException('Could not find Stripe query action for ' + objName + ' object');
+        return action.getPath();
+    }
+
+    public override String getHttpMethod(DataSource src) {
+        // TODO: cache the action somewhere; we're using it in multiple methods
+        String objName = this.config.sourceTree.objectName;
+        ExternalObjectAction action = this.dataSource.getObject(objName).getAction('query');
+        if (action == null) throw new StandardException('Could not find Stripe query action for ' + objName + ' object');
+        return action.getMethod();
+    }
+
     public override Map<String,Object> getRequestData(DataSource src) {
-        /*
-        ExternalObjectAction action = src.getAction('query');
-        if (action == null) throw new StandardException('Could not find Stripe query action for ' + dfd.getExternalObject() + ' object');
+        String objName = this.config.sourceTree.objectName;
+        ExternalObjectAction action = this.dataSource.getObject(objName).getAction('query');
+        if (action == null) throw new StandardException('Could not find Stripe query action for ' + objName + ' object');
         Map<String,Object> data = new Map<String,Object>();
         StripeQuery q = new StripeQuery();
-        q.addCondition('amount', '>', 1000);
-        q.addCondition('customer', '=', 'cus_Rs7xP84wr6CJPD');
-        data.put('query', q.toString());
-        List<String> expansions = q.getExpansions();
+        q.addCondition('amount', '>', 0);
+        // q.addCondition('customer', '=', 'cus_Rs7xP84wr6CJPD');
+        String queryString = q.getQueryString();
+        if (String.isNotBlank(queryString)) data.put('query', queryString);
+        List<String> expansions = this.getExpansions(this.config);
+        //List<String> expansions = q.getExpansions();
+        System.debug('Expansions: ' + expansions);
         if (expansions != null && !expansions.isEmpty()) {
             data.put('expand[]', expansions);
         }
         return data;
-        */ return null;
     }
 
     public override String getServiceApiName() {
@@ -157,17 +191,14 @@ public with sharing class StripeHandler extends ServiceHandler {
     public override Map<String,String> getRequestHeaders(DataSource src) {
         Map<String,String> headers = new Map<String,String>();
         headers.put('Content-Type', 'application/json');
-        // headers.put('Authorization', 'Bearer ' + getApiKey(dfd));
+        headers.put('Authorization', 'Bearer ' + getApiKey(src));
         return headers;
     }
 
     private String getApiKey(DataSource src) {
-        /*
-        DataSourceInstance dsi = dfd.getDataSourceInstance();
-        if (dsi == null) { throw new StandardException('Could not load data source instance from data flow definition'); }
-        String apiKey = dsi.getApiSecret();
+        if (this.dataSourceInstance == null) { throw new StandardException('Data source instance object not set'); }
+        String apiKey = this.dataSourceInstance.getApiSecret();
         if (String.isBlank(apiKey)) throw new StandardException('Data source instance does not have api key set');
         return apiKey;
-        */ return null;
     }
 }

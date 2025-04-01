@@ -8,6 +8,11 @@ private class StripeHandlerTest {
         return rels;
     }
 
+    private static void addTestDataSource() {
+        Data_Source__mdt ds_m = DataSourceTest.createDataSource('test', 'TestDataSource', StripeHandler.class.toString(), 'https://test.com', '1');
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds_m));
+    }
+
     private static Object_Relation__mdt createObjectRelation(String name, String dataSource, String access) {
         Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource, 'Extras__c' => '{ "forwardAccess":"' + access + '"}' };
         return (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
@@ -46,17 +51,22 @@ private class StripeHandlerTest {
     @isTest
     static void testExpandParams() {
         // Setup
+        addTestDataSource();
+        DataSourceInstanceTest.addTestDataSource();
         addObjectRelations();
+        ExternalObjectTest.addTestExternalObject();
+        ExternalObjectActionTest.addTestExternalObjectAction();
         Configuration cfg = Configuration.fromString(getTestConfigString());
-        StripeHandler hdlr = new StripeHandler();
+        DataTransfer.init(cfg);
+        StripeHandler hdlr = (StripeHandler)DataTransfer.handler;
 
         Test.startTest();
         {
             List<String> expansions = hdlr.getExpansions(cfg);
             System.assertEquals(2, expansions.size());
-            Set<String> expSet = new Set<String>(expansions);
-            System.assert(expSet.contains('parent1.child2'));
-            System.Assert(expSet.contains('parent1.child2.grand1'));
+            Set<String> expSet = new Set<String>(expansions);   
+            System.assert(expSet.contains('child2'));
+            System.Assert(expSet.contains('child2.grand1'));
         }
         Test.stopTest();
     }
