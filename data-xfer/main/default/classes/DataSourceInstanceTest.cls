@@ -9,7 +9,7 @@ public class DataSourceInstanceTest {
 
     public static void addTestDataSource() {
         Data_Source_Instance__c inst_m = createDataSourceInstance('test', 'svc', 'production');
-        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, inst_m));
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSourceInstance.class, inst_m));
     }
 
 
@@ -39,7 +39,7 @@ public class DataSourceInstanceTest {
 
             DataSource src = inst.getDataSource();
             System.assertNotEquals(null, src);
-            System.assertEquals('TestDataSource', src.getLabel());
+            System.assertEquals('TestDataSource', src.getDisplayName());
 
             Map<String,Object> opts = inst.getOptions();
             System.assertNotEquals(null, opts);
