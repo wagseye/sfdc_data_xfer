@@ -24,7 +24,7 @@ public with sharing virtual class DataSource extends ObjectWrapper {
         super(src);
     }
 
-    public String getLabel() { return (String)this.get('Display_Name__c'); }
+    public String getDisplayName() { return (String)this.get('Display_Name__c'); }
     public String getApiVersion() { return (String)this.get('API_Version__c'); }
     public String getBasePath() { return (String)this.get('Base_Url__c'); }
     public String getHandlerClass() { return (String)this.get('Handler_Class__c'); }
@@ -34,5 +34,13 @@ public with sharing virtual class DataSource extends ObjectWrapper {
         Object newObj = Type.forName(className).newInstance();
         if (!(newObj instanceof ServiceHandler)) throw new StandardException('Class "' + className + '" does not extend ServiceHandler');
         return (ServiceHandler)newObj;
+    }
+
+    public ExternalObject getObject(String objName) {
+        if (String.isBlank(objName)) throw new StandardException('A valid object name must be provided');
+        String objFullName = ExternalObject.getObjectName(this, objName);
+        ExternalObject obj = ExternalObject.getRecordByName(objFullName);
+        if (obj == null) throw new StandardException('Could not find an object with name ' + objName);
+        return obj;
     }
 }

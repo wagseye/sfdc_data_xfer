@@ -25,7 +25,7 @@ public class DataSourceTest {
         Test.startTest();
         {
             System.assertEquals('test', ds.getApiName());
-            System.assertEquals('TestDataSource', ds.getLabel());
+            System.assertEquals('TestDataSource', ds.getDisplayName());
             System.assertEquals('https://test.com', ds.getBasePath());
             System.assertEquals('1', ds.getApiVersion());
             ServiceHandler handler = ds.getHandler();
