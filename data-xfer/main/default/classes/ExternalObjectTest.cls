@@ -10,7 +10,7 @@ public class ExternalObjectTest {
 
     public static void addTestExternalObject() {
         Object__mdt obj_m = createExternalObject('testObject', 'Test Object', 'test_object', 'test_source');
-        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ExternalObjectTest.class, obj_m));
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ExternalObject.class, obj_m));
     }
 
 
