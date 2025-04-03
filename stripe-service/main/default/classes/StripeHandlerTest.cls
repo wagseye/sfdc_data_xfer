@@ -52,7 +52,7 @@ private class StripeHandlerTest {
     static void testExpandParams() {
         // Setup
         addTestDataSource();
-        DataSourceInstanceTest.addTestDataSource();
+        DataSourceInstanceTest.addTestDataSourceInstance();
         addObjectRelations();
         ExternalObjectTest.addTestExternalObject();
         ExternalObjectActionTest.addTestExternalObjectAction();
