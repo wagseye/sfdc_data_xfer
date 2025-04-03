@@ -1,4 +1,16 @@
 public with sharing class Configuration {
+    public interface StartListener {
+        void onConfigurationStart();
+    }
+
+    public interface FinishListener {
+        void onConfigurationFinish();
+    }
+
+    public interface ObjectListener {
+        void onConfigurationObject(MappedObject obj, MappedObject parent);
+    }
+
     public class MappedObject {
         public String objectName;
         public List<TargetObject> targetObjects;
@@ -42,11 +54,43 @@ public with sharing class Configuration {
 
     public static Configuration fromString(String configStr) {
         Configuration config = (Configuration)JSON.deserialize(configStr, Configuration.class);
-        validationConfiguration(config);
+        validateConfiguration(config);
         return config;
     }
 
-    public static void validationConfiguration(Configuration config) {
-        // TODO: implement this
+    public static void validateConfiguration(Configuration config) {
+        // TODO: keep adding to this
+        if ((config.sourceTree != null) && (config.sourceTree.parentRelation != null)) throw new StandardException('The top level source object must not specify a parent relation');
+        if ((config.targetTree != null) && (config.targetTree.parentRelation != null)) throw new StandardException('The top level target object must not specify a parent relation');
+    }
+
+    public void traverseSource(Object listener) {
+        traversePrivate(listener, this.sourceTree);
+    }
+
+    public void traverseTarget(Object listener) {
+        traversePrivate(listener, this.sourceTree);
+    }
+
+    private void traversePrivate(Object listener, MappedObject obj) {
+        if (listener == null) throw new StandardException('A listener must be provided');
+        // While not required, it is almost certainly a bug if the listener does not implement the ObjectListener interface
+        // so we check for it here
+        if (!(listener instanceOf ObjectListener)) {
+            throw new StandardException('The listener must implement at least one of the listener interfaces');
+        }
+
+        if (listener instanceof StartListener) ((StartListener)listener).onConfigurationStart();
+        if (obj != null) traverseRecursive(listener, obj, null);
+        if (listener instanceof FinishListener) ((FinishListener)listener).onConfigurationFinish();
+    }
+
+    private void traverseRecursive(Object listener, MappedObject currObj, MappedObject parent) {
+        if (listener instanceof ObjectListener) ((ObjectListener)listener).onConfigurationObject(currObj, parent);
+        if (currObj.childObjects != null) {
+            for (MappedObject child : currObj.childObjects) {
+                traverseRecursive(listener, child, currObj);
+            }
+        }
     }
 }
