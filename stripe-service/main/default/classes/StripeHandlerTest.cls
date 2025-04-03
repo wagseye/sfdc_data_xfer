@@ -68,12 +68,21 @@ private class StripeHandlerTest {
             System.assert(expSet.contains('child2'));
             System.Assert(expSet.contains('child2.grand1'));
 
+            // Set the prefix and ensure the expansions use it
             actn_m.Extras__c = '{ "resultsPrefix":"foo" }';
             expansions = hdlr.getExpansions(cfg);
             System.assertEquals(2, expansions.size());
             expSet = new Set<String>(expansions);
             System.assert(expSet.contains('foo.child2'));
             System.Assert(expSet.contains('foo.child2.grand1'));
+
+            // Improperly set the prefix and ensure the expansions do not use it
+            actn_m.Extras__c = '{ "resultPrefix":"foo" }';
+            expansions = hdlr.getExpansions(cfg);
+            System.assertEquals(2, expansions.size());
+            expSet = new Set<String>(expansions);
+            System.assert(expSet.contains('child2'));
+            System.Assert(expSet.contains('child2.grand1'));
         }
         Test.stopTest();
     }
