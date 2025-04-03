@@ -54,31 +54,35 @@ public with sharing class StripeHandler extends ServiceHandler {
         }
     }
 
+    private class ConfigListener implements Configuration.ObjectListener {
+        public List<String> expansions = new List<String>();
+        public String prefix;
+        public void onConfigurationObject(Configuration.MappedObject obj, Configuration.MappedObject parent) {
+            if (StripeHandler.getRelationAccess(obj.getParentRelation()) == 'expand') {
+                String fullPath = obj.path;
+                if (String.isNotBlank(fullPath)) {
+                    // The expansions are relative to the top-level object, so we need to strip off the top-level object (if present)
+                    Integer idx = fullPath.indexOf('.');
+                    if (idx > 0) {
+                        fullPath = fullPath.substring(idx + 1);
+                    }
+                }
+                fullPath = String.isNotBlank(this.prefix) ? this.prefix + '.' + fullPath : fullPath;
+                this.expansions.add(fullPath);
+            }
+        }
+    }
+
     public List<String> getExpansions(Configuration cfg) {
         if (cfg == null) throw new StandardException('A configuration object must be provided');
         if (cfg.sourceSystem != getServiceApiName()) throw new StandardException('Source system is not Stripe');
-        List<String> expansions = new List<String>();
-        if (cfg.sourceTree != null) {
-            String objName = this.config.sourceTree.objectName;
-            ExternalObjectAction actn = this.dataSource.getObject(objName).getAction('query');
-            String objPath = getResultsPrefix(actn);
-            this.addExpansionsRecursive(cfg.sourceTree, objPath, expansions);
-        }
-        return expansions;
+        ConfigListener listener = new ConfigListener();
+        ExternalObjectAction actn = this.dataSource.getObject(this.config.sourceTree.objectName).getAction('query');
+        listener.prefix = getResultsPrefix(actn);
+        cfg.traverseSource(listener);
+        return listener.expansions;
     }
 
-    private void addExpansionsRecursive(Configuration.MappedObject obj, String objPath, List<String> expansions) {
-        if ((obj == null) || (obj.childObjects == null)) return;
-        for (Configuration.MappedObject chld : obj.childObjects) {
-            String chldName = chld.objectName;
-            if (String.isBlank(chldName)) throw new StandardException('Child object does not have objectName set');
-            String chldPath = (String.isNotBlank(objPath) ? objPath + '.' : '') + chldName;
-            if (this.getRelationAccess(chld.getParentRelation()) == 'expand') {
-                expansions.add(chldPath);
-            }
-            addExpansionsRecursive(chld, chldPath, expansions);
-        }
-    }
 
     public class StripeResponse extends ServiceResponse {
         List<DataRecord> records;
@@ -121,7 +125,7 @@ public with sharing class StripeHandler extends ServiceHandler {
         }
     }
 
-    private String getRelationAccess(ObjectRelation rel) {
+    public static String getRelationAccess(ObjectRelation rel) {
         if (rel != null) {
             Map<String,Object> extras = rel.getExtras();
             if (extras != null) {
