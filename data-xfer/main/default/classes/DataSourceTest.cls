@@ -8,9 +8,10 @@ public class DataSourceTest {
         return (Data_Source__mdt)ObjectWrapperTest.createMetadataRecord(Data_Source__mdt.getSObjectType(), data);
     }
 
-    public static void addTestDataSource() {
+    public static Data_Source__mdt addTestDataSource() {
         Data_Source__mdt ds_m = createDataSource('test', 'TestDataSource', ServiceHandlerTest.ServiceHandlerMock.class.toString(), 'https://test.com', '1');
         ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds_m));
+        return ds_m;
     }
 
 

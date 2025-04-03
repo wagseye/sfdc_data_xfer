@@ -8,9 +8,10 @@ public class ExternalObjectActionTest {
         return (Object_Action__mdt)ObjectWrapperTest.createMetadataRecord(Object_Action__mdt.getSObjectType(), data);
     }
 
-    public static void addTestExternalObjectAction() {
+    public static Object_Action__mdt addTestExternalObjectAction() {
         Object_Action__mdt actn_m = createExternalObjectAction('test_action', 'test_object', 'query', 'get', '/unit/test');
         ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ExternalObjectAction.class, actn_m));
+        return actn_m;
     }
 
 

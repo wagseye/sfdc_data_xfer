@@ -7,9 +7,10 @@ public class DataSourceInstanceTest {
         return new Data_Source_Instance__c( Display_Name__c = name, Data_Source_Name__c = dataSource, Instance_Type__c = instanceType );
     }
 
-    public static void addTestDataSourceInstance() {
+    public static Data_Source_Instance__c addTestDataSourceInstance() {
         Data_Source_Instance__c inst_m = createDataSourceInstance('test', 'svc', 'production');
         ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSourceInstance.class, inst_m));
+        return inst_m;
     }
 
 

@@ -8,9 +8,10 @@ public class ExternalObjectTest {
         return (Object__mdt)ObjectWrapperTest.createMetadataRecord(Object__mdt.getSObjectType(), data);
     }
 
-    public static void addTestExternalObject() {
+    public static Object__mdt addTestExternalObject() {
         Object__mdt obj_m = createExternalObject('testObject', 'Test Object', 'test_object', 'test_source');
         ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ExternalObject.class, obj_m));
+        return obj_m;
     }
 
 

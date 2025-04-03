@@ -8,9 +8,10 @@ public class ExternalObjectFieldTest {
         return (Object_Field__mdt)ObjectWrapperTest.createMetadataRecord(Object_Field__mdt.getSObjectType(), data);
     }
 
-    public static void addTestExternalObjectField() {
+    public static Object_Field__mdt addTestExternalObjectField() {
         Object_Field__mdt fld_m = createExternalObjectField('svc_obj_fld', 'fld', 'Field', 'svc_obj', 'text');
         ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ExternalObjectField.class, fld_m));
+        return fld_m;
     }
 
 
