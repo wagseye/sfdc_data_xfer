@@ -16,6 +16,7 @@ public with sharing class Configuration {
         public List<TargetObject> targetObjects;
         public String parentRelation;
         public List<MappedObject> childObjects;
+        public String path;
 
         public ObjectRelation getParentRelation() {
             if (String.isNotBlank(this.parentRelation)) {
@@ -54,6 +55,8 @@ public with sharing class Configuration {
 
     public static Configuration fromString(String configStr) {
         Configuration config = (Configuration)JSON.deserialize(configStr, Configuration.class);
+        setPathsRecursive(config.sourceTree, null);
+        setPathsRecursive(config.targetTree, null);
         validateConfiguration(config);
         return config;
     }
@@ -62,6 +65,18 @@ public with sharing class Configuration {
         // TODO: keep adding to this
         if ((config.sourceTree != null) && (config.sourceTree.parentRelation != null)) throw new StandardException('The top level source object must not specify a parent relation');
         if ((config.targetTree != null) && (config.targetTree.parentRelation != null)) throw new StandardException('The top level target object must not specify a parent relation');
+    }
+
+    private static void setPathsRecursive(MappedObject obj, String currPath) {
+        if (obj != null) {
+            currPath = String.isBlank(currPath) ? obj.objectName : currPath + '.' + obj.objectName;
+            obj.path = currpath;
+            if (obj.childObjects != null) {
+                for (MappedObject child : obj.childObjects) {
+                    setPathsRecursive(child, currPath);
+                }
+            }
+        }
     }
 
     public void traverseSource(Object listener) {
