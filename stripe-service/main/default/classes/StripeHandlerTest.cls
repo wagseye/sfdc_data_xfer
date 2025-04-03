@@ -55,7 +55,7 @@ private class StripeHandlerTest {
         DataSourceInstanceTest.addTestDataSourceInstance();
         addObjectRelations();
         ExternalObjectTest.addTestExternalObject();
-        ExternalObjectActionTest.addTestExternalObjectAction();
+        Object_Action__mdt actn_m = ExternalObjectActionTest.addTestExternalObjectAction();
         Configuration cfg = Configuration.fromString(getTestConfigString());
         DataTransfer.init(cfg);
         StripeHandler hdlr = (StripeHandler)DataTransfer.handler;
@@ -64,9 +64,16 @@ private class StripeHandlerTest {
         {
             List<String> expansions = hdlr.getExpansions(cfg);
             System.assertEquals(2, expansions.size());
-            Set<String> expSet = new Set<String>(expansions);   
+            Set<String> expSet = new Set<String>(expansions);
             System.assert(expSet.contains('child2'));
             System.Assert(expSet.contains('child2.grand1'));
+
+            actn_m.Extras__c = '{ "resultsPrefix":"foo" }';
+            expansions = hdlr.getExpansions(cfg);
+            System.assertEquals(2, expansions.size());
+            expSet = new Set<String>(expansions);
+            System.assert(expSet.contains('foo.child2'));
+            System.Assert(expSet.contains('foo.child2.grand1'));
         }
         Test.stopTest();
     }
