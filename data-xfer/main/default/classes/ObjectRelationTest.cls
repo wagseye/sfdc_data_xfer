@@ -3,8 +3,10 @@ public class ObjectRelationTest {
     /************************************************************************/
     /*  Utility methods and classes
     /************************************************************************/
-    public static Object_Relation__mdt createObjectRelation(String name, String dataSource, String access) {
-        Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource, 'Extras__c' => '{ "forwardAccess":"' + access + '"}' };
+    public static Object_Relation__mdt createObjectRelation(String name, String dataSource, String access, String intermediateObject) {
+        String type = String.isBlank(intermediateObject) ? 'reference' : 'junction';
+        Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource,  'Type__c' => type, 'Intermediate_Object__c' => intermediateObject};
+        if (String.isNotBlank(access)) data.put('Extras__c', '{ "forwardAccess":"' + access + '"}');
         return (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
     }
 
@@ -18,9 +20,9 @@ public class ObjectRelationTest {
 
     public static List<Object_Relation__mdt> getObjectRelations() {
         List<Object_Relation__mdt> rels = new List<Object_Relation__mdt>();
-        rels.add(createObjectRelation('strp_p1_c1', 'strp', 'junction'));
-        rels.add(createObjectRelation('strp_p1_c2', 'strp', 'expand'));
-        rels.add(createObjectRelation('strp_c2_g1', 'strp', 'expand'));
+        rels.add(createObjectRelation('strp_p1_c1', 'strp', null, 'junction'));
+        rels.add(createObjectRelation('strp_p1_c2', 'strp', 'expand', null));
+        rels.add(createObjectRelation('strp_c2_g1', 'strp', 'expand', null));
         return rels;
     }
 

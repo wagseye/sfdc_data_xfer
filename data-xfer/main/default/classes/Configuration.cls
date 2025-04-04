@@ -11,7 +11,7 @@ public with sharing class Configuration {
         void onConfigurationObject(MappedObject obj, MappedObject parent);
     }
 
-    public class MappedObject {
+    public virtual class MappedObject {
         public String objectName;
         public List<TargetObject> targetObjects;
         public String parentRelation;
@@ -70,7 +70,7 @@ public with sharing class Configuration {
     private static void setPathsRecursive(MappedObject obj, String currPath) {
         if (obj != null) {
             currPath = String.isBlank(currPath) ? obj.objectName : currPath + '.' + obj.objectName;
-            obj.path = currpath;
+            obj.path = currPath;
             if (obj.childObjects != null) {
                 for (MappedObject child : obj.childObjects) {
                     setPathsRecursive(child, currPath);

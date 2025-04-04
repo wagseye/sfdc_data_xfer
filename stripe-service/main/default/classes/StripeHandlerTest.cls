@@ -1,11 +1,11 @@
 @isTest
 private class StripeHandlerTest {
     public static List<Object_Relation__mdt> getObjectRelations() {
-        List<Object_Relation__mdt> rels = new List<Object_Relation__mdt>();
-        rels.add(createObjectRelation('strp_p1_c1', 'strp', 'junction'));
-        rels.add(createObjectRelation('strp_p1_c2', 'strp', 'expand'));
-        rels.add(createObjectRelation('strp_c2_g1', 'strp', 'expand'));
-        return rels;
+        List<Object_Relation__mdt> rlns_m = new List<Object_Relation__mdt>();
+        rlns_m.add(ObjectRelationTest.createObjectRelation('strp_p1_c1', 'strp', null, 'junction'));
+        rlns_m.add(ObjectRelationTest.createObjectRelation('strp_p1_c2', 'strp', 'expand', null));
+        rlns_m.add(ObjectRelationTest.createObjectRelation('strp_c2_g1', 'strp', 'expand', null));
+        return rlns_m;
     }
 
     private static void addTestDataSource() {
@@ -13,17 +13,12 @@ private class StripeHandlerTest {
         ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(DataSource.class, ds_m));
     }
 
-    private static Object_Relation__mdt createObjectRelation(String name, String dataSource, String access) {
-        Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource, 'Extras__c' => '{ "forwardAccess":"' + access + '"}' };
-        return (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
-    }
-
     public static void addObjectRelations() {
-        Map<String,SObject> mapRels = new Map<String,SObject>();
-        for (Object_Relation__mdt rel : getObjectRelations()) {
-            mapRels.put(rel.DeveloperName, rel);
+        Map<String,SObject> mapRels_m = new Map<String,SObject>();
+        for (Object_Relation__mdt rel_m : getObjectRelations()) {
+            mapRels_m.put(rel_m.DeveloperName, rel_m);
         }
-        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ObjectRelation.class, mapRels));
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ObjectRelation.class, mapRels_m));
     }
 
     public static String getTestConfigString() {
