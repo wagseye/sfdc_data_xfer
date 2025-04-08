@@ -12,6 +12,13 @@ public class ObjectWrapperTest {
         return sobj;
     }
 
+    public static void setValues(ObjectWrapper obj, Map<String,Object> data) { setValues(obj.record, data); }
+    public static void setValues(SObject sobj, Map<String,Object> data) {
+        for (String fldName : data.keySet()) {
+            sobj.put(fldName, data.get(fldName));
+        }
+    }
+
     // A Selector implementation that makes it easy to control the records returned for use in unit tests
     public class TestSelector extends ObjectWrapper.Selector {
         // TestSelector keeps its own copy of the query results in list or map format so it can decide which record(s) to return

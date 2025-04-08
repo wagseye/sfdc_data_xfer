@@ -35,7 +35,7 @@ public with sharing abstract class ObjectWrapper {
         }
     }
 
-    protected SObject record;
+    @TestVisible protected SObject record;
     private static Map<Type,Selector> mockSelectors;
     @TestVisible private static void addMock(Selector selector) {
         if (selector == null) throw new StandardException('A valid selector must be provided');
