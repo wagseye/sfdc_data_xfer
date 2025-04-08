@@ -35,7 +35,8 @@ public with sharing virtual class ObjectRelation extends ObjectWrapper {
     public String getType() { return (String)this.get('Type__c'); }
     public ExternalObject getObject1() { return this.getObject('Object1__c'); }
     public ExternalObject getObject2() { return this.getObject('Object2__c'); }
-
+    public ObjectRelation getSubRelation1() { return this.getRelation('Field1__c'); }
+    public ObjectRelation getSubRelation2() { return this.getRelation('Field2__c'); }
 
     public Map<String,Object> getExtras() {
         try {
@@ -47,11 +48,23 @@ public with sharing virtual class ObjectRelation extends ObjectWrapper {
     }
 
     private ExternalObject getObject(String fldName) {
-        String obj1Id = (String)this.get(fldName);
-        if (String.isNotBlank(obj1Id)) {
-            Object__mdt obj1 = Object__mdt.getInstance(obj1Id);
-            if (obj1 == null) throw new StandardException('Could not load custom metadata record of type "Object__mdt" with id=' + obj1Id);
-            return new ExternalObject(obj1);
+        String objId = (String)this.get(fldName);
+        if (String.isNotBlank(objId)) {
+            ExternalObject obj = ExternalObject.getRecordByName(objId);
+            if (obj == null) throw new StandardException('Could not load custom metadata record of type "Object__mdt" with id=' + objId);
+            return obj;
+        }
+        return null;
+    }
+
+    private ObjectRelation getRelation(String fldName) {
+        if (this.getType().equalsIgnoreCase('junction')) {
+            String relName = (String)this.get(fldName);
+            if (String.isNotBlank(relName)) {
+                ObjectRelation rel = ObjectRelation.getRecordByName(relName);
+                if (rel == null) throw new StandardException('Could not load custom metadata record of type "Object_Relation__mdt" with name=' + relName);
+                return rel;
+            }
         }
         return null;
     }
