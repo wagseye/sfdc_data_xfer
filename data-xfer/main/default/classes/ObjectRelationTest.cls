@@ -68,7 +68,9 @@ public class ObjectRelationTest {
             System.assertEquals('f2', rel.getField2());
             System.assertEquals(null, rel.getIntermediateObject());
             System.assertEquals('1:1', rel.getRatio());
-            System.assertEquals('reference', rel.getType());
+            System.assertEquals(ObjectRelation.REFERENCE, rel.getType());
+            System.assert(rel.isReference());
+            System.assert(!rel.isJunction());
 
             ExternalObject obj = rel.getObject1();
             System.assertNotEquals(null, obj);
@@ -114,8 +116,10 @@ public class ObjectRelationTest {
         Test.startTest();
         {
             System.assertEquals('myJunction', junc.getApiName());
-            System.assertEquals('junction', junc.getType());
             System.assertEquals('juncObject', junc.getIntermediateObject());
+            System.assertEquals(ObjectRelation.JUNCTION, junc.getType());
+            System.assert(junc.isJunction());
+            System.assert(!junc.isReference());
 
             ObjectRelation sub = junc.getSubRelation1();
             System.assertNotEquals(null, sub);
@@ -135,6 +139,39 @@ public class ObjectRelationTest {
             System.assertNotEquals(null, src);
             System.assertEquals('svc', src.getApiName());
 
+        }
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testInvalidAccessors() {
+        Object__mdt obj_m = ExternalObjectTest.addTestExternalObject();
+        obj_m.DeveloperName = 'test_object';
+
+        Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => 'InvalidRelation', 'Type__c' => 'invalid' };
+        Object_Relation__mdt inv_m = (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
+        ObjectRelation inv = new ObjectRelation(inv_m);
+
+        Test.startTest();
+        {
+            // Ensure that all attempts to access the invalid type should throw an exception
+            Boolean isError = false;
+            try {
+                inv.getType();
+            } catch (Exception ex) { isError = true; }
+            System.assert(isError, 'Expected exception on getType() but none thrown');
+
+            isError = false;
+            try {
+                inv.isJunction();
+            } catch (Exception ex) { isError = true; }
+            System.assert(isError, 'Expected exception on isJunction() but none thrown');
+
+            isError = false;
+            try {
+                inv.isReference();
+            } catch (Exception ex) { isError = true; }
+            System.assert(isError, 'Expected exception on isReference() but none thrown');
         }
         Test.stopTest();
     }
