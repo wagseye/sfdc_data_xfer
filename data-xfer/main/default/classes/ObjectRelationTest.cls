@@ -89,16 +89,17 @@ public class ObjectRelationTest {
 
     @isTest
     static void testJunctionAccessors() {
-        Object__mdt obj_m = ExternalObjectTest.addTestExternalObject();
-        obj_m.DeveloperName = 'test_object';
-
+        Object__mdt testobj_m = ExternalObjectTest.createExternalObject('test_object', null, null, null);
+        Object__mdt juncobj_m = ExternalObjectTest.createExternalObject('junc_object', null, null, null);
+        Map<String,SObject> mapObjs = new Map<String,SObject>{ 'test_object' => testobj_m, 'junc_object' => juncobj_m };
+        ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ExternalObject.class, mapObjs));
         // Create the metadata inner record
         Map<String,Object> data = new Map<String,Object>{
             'DeveloperName' => 'myJunction',
             'Data_Source__c' => 'svc',
             'Field1__c' => 'sub1',
             'Field2__c' => 'sub1',
-            'Intermediate_Object__c' => 'juncObject',
+            'Intermediate_Object__c' => 'junc_object',
             'Type__c' => 'junction',
             'Object1__c' => 'test_object',
             'Object2__c' => 'test_object' };
@@ -116,7 +117,6 @@ public class ObjectRelationTest {
         Test.startTest();
         {
             System.assertEquals('myJunction', junc.getApiName());
-            System.assertEquals('juncObject', junc.getIntermediateObject());
             System.assertEquals(ObjectRelation.JUNCTION, junc.getType());
             System.assert(junc.isJunction());
             System.assert(!junc.isReference());
@@ -128,7 +128,10 @@ public class ObjectRelationTest {
             System.assertNotEquals(null, sub);
             System.assertEquals('sub', sub.getApiName());
 
-            ExternalObject obj = junc.getObject1();
+            ExternalObject obj = junc.getIntermediateObject();
+            System.assertNotEquals(null, obj);
+            System.assertEquals('junc_object', obj.getName());
+            obj = junc.getObject1();
             System.assertNotEquals(null, obj);
             System.assertEquals('test_object', obj.getName());
             obj = junc.getObject2();

@@ -4,8 +4,10 @@
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Intermediate Object</label>
-    <length>40</length>
+    <referenceTo>Object__mdt</referenceTo>
+    <relationshipLabel>Junction Objects</relationshipLabel>
+    <relationshipName>Junction_Objects</relationshipName>
     <required>false</required>
-    <type>Text</type>
+    <type>MetadataRelationship</type>
     <unique>false</unique>
 </CustomField>

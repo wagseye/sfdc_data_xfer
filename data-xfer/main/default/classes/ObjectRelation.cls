@@ -32,7 +32,7 @@ public with sharing virtual class ObjectRelation extends ObjectWrapper {
 
     public String getField1() { return (String)this.get('Field1__c'); }
     public String getField2() { return (String)this.get('Field2__c'); }
-    public String getIntermediateObject() { return (String)this.get('Intermediate_Object__c'); }
+    public ExternalObject getIntermediateObject() { return this.getObject('Intermediate_Object__c'); }
     public String getRatio() { return (String)this.get('Ratio__c'); }
     public Boolean isJunction() { return getType() == JUNCTION; }
     public Boolean isReference() { return getType() == REFERENCE; }
