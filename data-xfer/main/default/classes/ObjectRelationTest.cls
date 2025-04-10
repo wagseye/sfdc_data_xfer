@@ -13,6 +13,20 @@ public class ObjectRelationTest {
     public static Object_Relation__mdt createObjectRelation(String name, String dataSource, Object__mdt obj1, String fld1, Object__mdt obj2, String fld2) {
         System.assert(obj1 != null); System.assert(obj2 != null);
         Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource, 'Type__c' => 'reference', 'Object1__c' => obj1.DeveloperName, 'Field1__c' => fld1, 'Object2__c' => obj2.DeveloperName, 'Field2__c' => fld2 };
+        
+        return (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
+    }
+
+    public static Object_Relation__mdt createReferenceRelation(String name, String dataSource, String access, Object__mdt obj1, String fld1, Object__mdt obj2, String fld2) {
+        Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource,  'Type__c' => ObjectRelation.REFERENCE, 'Field1__c' => fld1, 'Field2__c' => fld2 };
+        if (obj1 != null) data.put('Object1__c', obj1.DeveloperName);
+        if (obj2 != null) data.put('Object2__c', obj2.DeveloperName);
+        return (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
+    }
+
+    public static Object_Relation__mdt createJunctionRelation(String name, String dataSource, Object__mdt junctionObj, Object_Relation__mdt subrel1, Object_Relation__mdt subrel2) {
+        List<Object_Relation__mdt> rels = new List<Object_Relation__mdt>();
+        Map<String,Object> data = new Map<String,Object>{ 'DeveloperName' => name, 'Data_Source__c' => dataSource,  'Type__c' => ObjectRelation.JUNCTION, 'Intermediate_Object__c' => junctionObj.DeveloperName, 'Object1__c' => subrel1.Object1__c, 'Field1__c' => subrel1.DeveloperName, 'Object2__c' => subRel2.Object1__c, 'Field2__c' => subrel2.DeveloperName };
         return (Object_Relation__mdt)ObjectWrapperTest.createMetadataRecord(Object_Relation__mdt.getSObjectType(), data);
     }
 
