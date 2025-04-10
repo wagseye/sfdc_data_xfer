@@ -44,14 +44,14 @@ public with sharing class DataTransfer {
     }
 
     private class Relation {
-        public Configuration.MappedObject parent;
+        public String parentPath;
         public String parentField;
         public String childField;
-        public Relation(Configuration.MappedObject prnt, String prntFld, String chldFld) {
-            if (prnt == null) throw new StandardException('A parent object must be provided');
+        public Relation(String prntPath, String prntFld, String chldFld) {
+            if (String.isBlank(prntPath) == null) throw new StandardException('A parent path must be provided');
             if (String.isBlank(prntFld)) throw new StandardException('A parent field must be provided');
             if (String.isBlank(chldFld)) throw new StandardException('A child field must be provided');
-            this.parent = prnt;
+            this.parentPath = prntPath;
             this.parentField = prntFld;
             this.childField = chldFld;
         }
@@ -82,14 +82,14 @@ public with sharing class DataTransfer {
                     ObjectRelation childSubRel = rltn.getSubRelation2();
                     if (parentSubRel == null) throw new StandardException('Could not find parent subrelation for junction ' + rltn.getApiName());
                     if (childSubRel == null) throw new StandardException('Could not find child subrelation for junction ' + rltn.getApiName());
-                    rels.add(new Relation(parent, parentSubRel.getField1(), parentSubRel.getField2()));
-                    rels.add(new Relation(obj, childSubRel.getField1(), childSubRel.getField2()));
+                    rels.add(new Relation(parent.path, parentSubRel.getField1(), parentSubRel.getField2()));
+                    rels.add(new Relation(obj.path, childSubRel.getField1(), childSubRel.getField2()));
                     if (!parentSubRel.getObject1().getApiName().equalsIgnoreCase(parent.objectName)) throw new StandardException('Object 1 on relation ' + parentSubRel.getApiName() + ' is not ' + parent.objectName);
                     if (!childSubRel.getObject1().getApiName().equalsIgnoreCase(obj.objectName)) throw new StandardException('Object 1 on relation ' + childSubRel.getApiName() + ' is not ' + obj.objectName);
                     relations.put(junc.path, rels);
                 } else { // To get here the relation MUST be a reference
                     tiers.put(obj.path, parentTier + 1);
-                    rels.add(new Relation(parent, rltn.getField1(), rltn.getField2()));
+                    rels.add(new Relation(parent.path, rltn.getField1(), rltn.getField2()));
                     relations.put(obj.path, rels);
                 }
             } else {
@@ -123,8 +123,8 @@ public with sharing class DataTransfer {
             hndl.status = TargetRecordHandle.Status.PENDING;
             if (rels != null) {
                 for (Relation rel : rels) {
-                    TargetRecordHandle parent = handlesByPath.get(rel.parent.path);
-                    if (parent == null) throw new StandardException('Did not find parent object with path ' + rel.parent.path + ' for object ' + obj.path);
+                    TargetRecordHandle parent = handlesByPath.get(rel.parentPath);
+                    if (parent == null) throw new StandardException('Did not find parent object with path ' + rel.parentPath + ' for object ' + obj.path);
                     hndl.addParentRelation(parent, rel.parentField, rel.childField);
                 }
             }
