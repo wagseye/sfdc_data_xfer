@@ -43,26 +43,12 @@ public with sharing class DataTransfer {
         return hdlr;
     }
 
-    private class Relation {
-        public String parentPath;
-        public String parentField;
-        public String childField;
-        public Relation(String prntPath, String prntFld, String chldFld) {
-            if (String.isBlank(prntPath) == null) throw new StandardException('A parent path must be provided');
-            if (String.isBlank(prntFld)) throw new StandardException('A parent field must be provided');
-            if (String.isBlank(chldFld)) throw new StandardException('A child field must be provided');
-            this.parentPath = prntPath;
-            this.parentField = prntFld;
-            this.childField = chldFld;
-        }
-    }
     private class ConfigListener implements Configuration.ObjectListener {
         public Map<String,Integer> tiers = new Map<String,Integer>();
         public Map<String,Configuration.MappedObject> objects = new  Map<String,Configuration.MappedObject>();
-        public Map<String,List<Relation>> relations = new Map<String,List<Relation>>();
+        public Map<String,List<TargetRecordHandle.ParentRelation>> relations = new Map<String,List<TargetRecordHandle.ParentRelation>>();
         public void onConfigurationObject(Configuration.MappedObject obj, Configuration.MappedObject parent) {
             objects.put(obj.path, obj);
-            List<Relation> rels = new List<Relation>();
             if (parent != null) {
                 Integer parentTier = tiers.get(parent.path);
                 if (parentTier == null) throw new StandardException('Unable to find parent tier');
@@ -82,15 +68,16 @@ public with sharing class DataTransfer {
                     ObjectRelation childSubRel = rltn.getSubRelation2();
                     if (parentSubRel == null) throw new StandardException('Could not find parent subrelation for junction ' + rltn.getApiName());
                     if (childSubRel == null) throw new StandardException('Could not find child subrelation for junction ' + rltn.getApiName());
-                    rels.add(new Relation(parent.path, parentSubRel.getField1(), parentSubRel.getField2()));
-                    rels.add(new Relation(obj.path, childSubRel.getField1(), childSubRel.getField2()));
+                    List<TargetRecordHandle.ParentRelation> rels = new List<TargetRecordHandle.ParentRelation>();
+                    rels.add(new TargetRecordHandle.ParentRelation(parent.path, parentSubRel.getField1(), parentSubRel.getField2()));
+                    rels.add(new TargetRecordHandle.ParentRelation(obj.path, childSubRel.getField1(), childSubRel.getField2()));
                     if (!parentSubRel.getObject1().getApiName().equalsIgnoreCase(parent.objectName)) throw new StandardException('Object 1 on relation ' + parentSubRel.getApiName() + ' is not ' + parent.objectName);
                     if (!childSubRel.getObject1().getApiName().equalsIgnoreCase(obj.objectName)) throw new StandardException('Object 1 on relation ' + childSubRel.getApiName() + ' is not ' + obj.objectName);
                     relations.put(junc.path, rels);
                 } else { // To get here the relation MUST be a reference
                     tiers.put(obj.path, parentTier + 1);
-                    rels.add(new Relation(parent.path, rltn.getField1(), rltn.getField2()));
-                    relations.put(obj.path, rels);
+                    TargetRecordHandle.ParentRelation rel = new TargetRecordHandle.ParentRelation(parent.path, rltn.getField1(), rltn.getField2());
+                    relations.put(obj.path, new List<TargetRecordHandle.ParentRelation>{ rel });
                 }
             } else {
                 tiers.put(obj.path, 0);
@@ -113,7 +100,7 @@ public with sharing class DataTransfer {
 
         for (Configuration.MappedObject obj : listener.objects.values()) {
             Integer tier = listener.tiers.get(obj.path);
-            List<Relation> rels = listener.relations.get(obj.path);
+            List<TargetRecordHandle.ParentRelation> rels = listener.relations.get(obj.path);
             List<TargetRecordHandle> tierHandles = handles[tier];
             if (tierHandles == null) tierHandles = new List<TargetRecordHandle>();
             handles[tier] = tierHandles;
@@ -122,10 +109,11 @@ public with sharing class DataTransfer {
             hndl.type = (obj instanceof JunctionObject) ?  TargetRecordHandle.Type.JUNCTION : TargetRecordHandle.Type.TARGET;
             hndl.status = TargetRecordHandle.Status.PENDING;
             if (rels != null) {
-                for (Relation rel : rels) {
+                for (TargetRecordHandle.ParentRelation rel : rels) {
                     TargetRecordHandle parent = handlesByPath.get(rel.parentPath);
                     if (parent == null) throw new StandardException('Did not find parent object with path ' + rel.parentPath + ' for object ' + obj.path);
-                    hndl.addParentRelation(parent, rel.parentField, rel.childField);
+                    rel.parent = parent;
+                    hndl.addParentRelation(rel);
                 }
             }
             tierHandles.add(hndl);
