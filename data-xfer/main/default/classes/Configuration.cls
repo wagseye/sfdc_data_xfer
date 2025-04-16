@@ -16,7 +16,8 @@ public with sharing class Configuration {
         public List<TargetObject> targetObjects;
         public String parentRelation;
         public List<MappedObject> childObjects;
-        public String path;
+
+        public String path; // This is not set in the configuration json, but manually set when the json is parsed
 
         public ObjectRelation getParentRelation() {
             if (String.isNotBlank(this.parentRelation)) {
