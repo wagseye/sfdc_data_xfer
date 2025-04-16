@@ -20,6 +20,8 @@ public with sharing class RecordPath {
         this.delimiter = value;
     } } { this.delimiter = DEFAULT_DELIMITER; }
 
+    public RecordPath() {}
+
     public RecordPath(String path) {
         if (!isValidPath(path, this.delimiter)) throw new StandardException('Path is not a valid format');
         this.path = path;
@@ -29,6 +31,12 @@ public with sharing class RecordPath {
         if (!isValidPath(path, delimiter)) throw new StandardException('Path is not a valid format');
         this.delimiter = delimiter;
         this.path = path;
+    }
+
+    public RecordPath(RecordPath other) {
+        if (!isValidPath(other.path, other.delimiter)) throw new StandardException('Path is not a valid format');
+        this.path = other.path;
+        this.delimiter = other.delimiter;
     }
 
     public override String toString() {

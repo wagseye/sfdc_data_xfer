@@ -27,13 +27,21 @@ private class RecordPathTest {
 
     @isTest
     static void testConstructors() {
-        RecordPath path = new RecordPath('abc');
+        RecordPath path = new RecordPath();
+        System.assertEquals('', path.toString());
+        System.assertEquals('.', path.delimiter);
+
+        path = new RecordPath('abc');
         System.assertEquals('abc', path.toString());
         System.assertEquals('.', path.delimiter);
 
         path = new RecordPath('abc', '=');
         System.assertEquals('abc', path.toString());
         System.assertEquals('=', path.delimiter);
+
+        RecordPath path2 = new RecordPath(path);
+        System.assertEquals('abc', path2.toString());
+        System.assertEquals('=', path2.delimiter);
 
         path = new RecordPath(null, '=');
         System.assertEquals('', path.toString());
