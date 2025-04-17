@@ -72,32 +72,115 @@ private class RecordPathTest {
     }
 
     @isTest
-    static void testAppend() {
+    static void testEditEnd() {
         RecordPath path = new RecordPath('');
-        path.append('abc');
+        path.addToEnd('abc');
         System.assertEquals('abc', path.toString());
+        String value = path.removeFromEnd();
+        System.assertEquals('abc', value);
+        System.assertEquals('', path.toString());
 
         path = new RecordPath('abc');
-        path.append('def');
+        path.addToEnd('def');
         System.assertEquals('abc.def', path.toString());
+        value = path.removeFromEnd();
+        System.assertEquals('def', value);
+        System.assertEquals('abc', path.toString());
 
         path = new RecordPath('abc.def');
-        path.append('ghi');
+        path.addToEnd('ghi');
         System.assertEquals('abc.def.ghi', path.toString());
+        value = path.removeFromEnd();
+        System.assertEquals('ghi', value);
+        System.assertEquals('abc.def', path.toString());
+
+        // Run it all the way down to empty
+        value = path.removeFromEnd();
+        System.assertEquals('def', value);
+        System.assertEquals('abc', path.toString());
+        value = path.removeFromEnd();
+        System.assertEquals('abc', value);
+        System.assertEquals('', path.toString());
+        value = path.removeFromEnd();
+        System.assertEquals(null, value);
+        System.assertEquals('', path.toString());
     }
 
     @isTest
-    static void testPrepend() {
+    static void testEditStart() {
         RecordPath path = new RecordPath('');
-        path.prepend('abc');
+        path.addToStart('abc');
         System.assertEquals('abc', path.toString());
+        String value = path.removeFromStart();
+        System.assertEquals('abc', value);
+        System.assertEquals('', path.toString());
+
 
         path = new RecordPath('abc');
-        path.prepend('def');
+        path.addToStart('def');
         System.assertEquals('def.abc', path.toString());
+        value = path.removeFromStart();
+        System.assertEquals('def', value);
+        System.assertEquals('abc', path.toString());
 
         path = new RecordPath('abc.def');
-        path.prepend('ghi');
+        path.addToStart('ghi');
         System.assertEquals('ghi.abc.def', path.toString());
+        value = path.removeFromStart();
+        System.assertEquals('ghi', value);
+        System.assertEquals('abc.def', path.toString());
+
+        // Run it all the way down to empty
+        value = path.removeFromStart();
+        System.assertEquals('abc', value);
+        System.assertEquals('def', path.toString());
+        value = path.removeFromStart();
+        System.assertEquals('def', value);
+        System.assertEquals('', path.toString());
+        value = path.removeFromStart();
+        System.assertEquals(null, value);
+        System.assertEquals('', path.toString());
+    }
+
+    @isTest
+    static void testEqualsAndHashCode() {
+        RecordPath p1 = new RecordPath('abc.def.ghi');
+        RecordPath p2 = new RecordPath('abc.def.ghi');
+        RecordPath p3 = new RecordPath('abc.de.fghi');
+        System.assert(p1.equals(p2));
+        System.assert(p2.equals(p1));
+        System.assert(!p1.equals(p3));
+        System.assert(!p3.equals(p1));
+        System.assert(!p2.equals(p3));
+        System.assert(!p3.equals(p2));
+        System.assert(p1.equals('abc.def.ghi'));
+        System.assert(!p1.equals('abc.de.fghi'));
+
+        System.assertEquals(p1.hashCode(), p2.hashCode());
+        System.assertNotEquals(p1.hashCode(), p3.hashCode());
+        System.assertNotEquals(p2.hashCode(), p3.hashCode());
+
+        Map<RecordPath,String> testMap = new Map<RecordPath,String>();
+        testMap.put(p1, 'test');
+        System.assertEquals(1, testMap.size());
+        System.assertEquals('test', testMap.get(p1));
+        System.assertEquals('test', testMap.get(p2));
+
+        testMap.put(p2, 'test');
+        System.assertEquals(1, testMap.size());
+        System.assertEquals('test', testMap.get(p1));
+        System.assertEquals('test', testMap.get(p2));
+
+        testMap.put(p3, 'test2');
+        System.assertEquals(2, testMap.size());
+        System.assertEquals('test', testMap.get(p1));
+        System.assertEquals('test', testMap.get(p2));
+        System.assertEquals('test2', testMap.get(p3));
+
+        testMap.remove(p1);
+        System.assertEquals(1, testMap.size());
+        System.assertEquals(null, testMap.get(p1));
+        System.assertEquals(null, testMap.get(p2));
+        System.assertEquals('test2', testMap.get(p3));
     }
 }

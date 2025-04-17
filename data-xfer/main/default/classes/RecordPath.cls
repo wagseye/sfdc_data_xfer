@@ -44,12 +44,27 @@ public with sharing class RecordPath {
         return this.path;
     }
 
+    public Boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (obj instanceOf String) {
+            return this.path == (String)obj;
+        }
+        if (obj instanceof RecordPath) {
+            return this.path == ((RecordPath)obj).path;
+        }
+        return false;
+    }
+    
+    public override Integer hashCode() {
+        return this.toString().hashCode();
+    }
+
     public List<String> getElements() {
         if (String.isBlank(this.path)) return new List<String>();
         return this.path.split(escapeDelimiter(this.delimiter));
     }
 
-    public void prepend(String prefix) {
+    public void addToStart(String prefix) {
         if (String.isBlank(prefix)) throw new StandardException('String to prepend must be specified');
         if (prefix.indexOf(delimiter) >= 0 ) throw new StandardException('Elements must be prepended one at a time');
         List<String> elements = this.getElements();
@@ -61,11 +76,26 @@ public with sharing class RecordPath {
         this.path = String.join(elements, this.delimiter);
     }
 
-    public void append(String suffix) {
+    public String removeFromStart() {
+        List<String> elements = this.getElements();
+        if (elements.isEmpty()) return null;
+        String element = elements.remove(0);
+        this.path = String.join(elements, this.delimiter);
+        return element;
+    }
+
+    public void addToEnd(String suffix) {
         if (String.isBlank(suffix)) throw new StandardException('String to prepend must be specified');
-        if (suffix.indexOf(delimiter) >= 0 ) throw new StandardException('Elements must be appended one at a time');
         List<String> elements = this.getElements();
         elements.add(suffix);
         this.path = String.join(elements, this.delimiter);
+    }
+
+    public String removeFromEnd() {
+        List<String> elements = this.getElements();
+        if (elements.isEmpty()) return null;
+        String element = elements.remove(elements.size() - 1);
+        this.path = String.join(elements, this.delimiter);
+        return element;
     }
 }
