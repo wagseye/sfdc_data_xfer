@@ -104,6 +104,17 @@ private class RecordPathTest {
         value = path.removeFromEnd();
         System.assertEquals(null, value);
         System.assertEquals('', path.toString());
+
+        path = new RecordPath('abc.def.ghi.jkl');
+        Boolean isError = false;
+        try {
+            path.removeFromEnd(new RecordPath('abc'));
+        } catch (Exception ex) { isError = true; }
+        System.assertEquals(true, isError);
+        System.assertEquals('abc.def.ghi', path.removeFromEnd(new RecordPath('jkl')).toString());
+        System.assertEquals('abc.def', path.removeFromEnd(new RecordPath('ghi.jkl')).toString());
+        System.assertEquals('abc', path.removeFromEnd(new RecordPath('def.ghi.jkl')).toString());
+        System.assertEquals('', path.removeFromEnd(new RecordPath('abc.def.ghi.jkl')).toString());
     }
 
     @isTest
@@ -140,6 +151,17 @@ private class RecordPathTest {
         value = path.removeFromStart();
         System.assertEquals(null, value);
         System.assertEquals('', path.toString());
+
+        path = new RecordPath('abc.def.ghi.jkl');
+        Boolean isError = false;
+        try {
+            path.removeFromStart(new RecordPath('jkl'));
+        } catch (Exception ex) { isError = true; }
+        System.assertEquals(true, isError);
+        System.assertEquals('def.ghi.jkl', path.removeFromStart(new RecordPath('abc')).toString());
+        System.assertEquals('ghi.jkl', path.removeFromStart(new RecordPath('abc.def')).toString());
+        System.assertEquals('jkl', path.removeFromStart(new RecordPath('abc.def.ghi')).toString());
+        System.assertEquals('', path.removeFromStart(new RecordPath('abc.def.ghi.jkl')).toString());
     }
 
     @isTest

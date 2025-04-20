@@ -84,11 +84,37 @@ public with sharing class RecordPath {
         return element;
     }
 
+    // I do not like that even though these two functions have the same name, one mutates the instance while the other does not,
+    // but I can't come up with a better name so I'm leaving it for now.
+    public RecordPath removeFromStart(RecordPath otherPath) {
+        // We can get around this, but it'll be a harder implementation (that we may or may not ever need)
+        System.assertEquals(this.delimiter, otherPath.delimiter);
+
+        if (String.isBlank(this.path)) {
+            if (String.isBlank(otherPath.path)) throw new StandardException('No path set');
+        } else {
+            if (!this.path.startsWith(otherPath.path)) throw new StandardException('Parameter path () ' + otherPath.path + ' is not a prefix of this path (' + this.path + ')');
+            if (!this.path.equals(otherPath.path)) {
+                return new RecordPath(this.path.removeStart(otherPath.path + this.delimiter));
+           }
+        }
+        return new RecordPath();
+    }
+
     public void addToEnd(String suffix) {
         if (String.isBlank(suffix)) throw new StandardException('String to prepend must be specified');
         List<String> elements = this.getElements();
         elements.add(suffix);
         this.path = String.join(elements, this.delimiter);
+    }
+
+    public void addToEnd(RecordPath otherPath) {
+        // This is a quick, basic implementation that probably has some edge cases which break...
+        if (String.isNotBlank(this.path)) {
+            this.path += this.delimiter + otherPath;
+        } else {
+            this.path = otherPath.toString();
+        }
     }
 
     public String removeFromEnd() {
@@ -97,5 +123,22 @@ public with sharing class RecordPath {
         String element = elements.remove(elements.size() - 1);
         this.path = String.join(elements, this.delimiter);
         return element;
+    }
+
+    // I do not like that even though these two functions have the same name, one mutates the instance while the other does not,
+    // but I can't come up with a better name so I'm leaving it for now.
+    public RecordPath removeFromEnd(RecordPath otherPath) {
+        // We can get around this, but it'll be a harder implementation (that we may or may not ever need)
+        System.assertEquals(this.delimiter, otherPath.delimiter);
+
+        if (String.isBlank(this.path)) {
+            if (String.isBlank(otherPath.path)) throw new StandardException('No path set');
+        } else {
+           if (!this.path.endsWith(otherPath.path)) throw new StandardException('Parameter path () ' + otherPath.path + ' is not a suffix of this path (' + this.path + ')');
+           if (!this.path.equals(otherPath.path)) {
+               return new RecordPath(this.path.removeEnd(this.delimiter + otherPath.path));
+           }
+        }
+        return new RecordPath();
     }
 }
