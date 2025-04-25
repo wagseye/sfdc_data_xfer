@@ -54,33 +54,25 @@ public with sharing class StripeHandler extends ServiceHandler {
         }
     }
 
-    private class ConfigListener implements Configuration.ObjectListener {
-        public List<String> expansions = new List<String>();
-        public String prefix;
-        public void onConfigurationObject(Configuration.MappedObject obj, Configuration.MappedObject parent) {
+    public List<String> getExpansions(Configuration cfg) {
+        List<String> expansions = new List<String>();
+
+        ExternalObjectAction actn = this.dataSource.getObject(this.config.sourceTree.objectName).getAction('query');
+        RecordPath prefix = getResultsPrefix(actn);
+
+        for (Configuration.MappedObject obj : cfg.sourceObjects) {
             if (StripeHandler.getRelationAccess(obj.getParentRelation()) == 'expand') {
-                String fullPath = obj.path;
-                if (String.isNotBlank(fullPath)) {
-                    // The expansions are relative to the top-level object, so we need to strip off the top-level object (if present)
-                    Integer idx = fullPath.indexOf('.');
-                    if (idx > 0) {
-                        fullPath = fullPath.substring(idx + 1);
-                    }
+                RecordPath fullPath = new RecordPath(obj.path);
+                // The expansions are relative to the top-level object, so we need to strip off the top-level object (if present)
+                fullPath.removeFromStart();
+                // If there is a prefix, that needs to be added to the front of the path
+                if ((prefix != null) && !prefix.isEmpty()) {
+                    fullPath.addToStart(prefix);
                 }
-                fullPath = String.isNotBlank(this.prefix) ? this.prefix + '.' + fullPath : fullPath;
-                this.expansions.add(fullPath);
+                expansions.add(fullPath.toString());
             }
         }
-    }
-
-    public List<String> getExpansions(Configuration cfg) {
-        if (cfg == null) throw new StandardException('A configuration object must be provided');
-        if (cfg.sourceSystem != getServiceApiName()) throw new StandardException('Source system is not Stripe');
-        ConfigListener listener = new ConfigListener();
-        ExternalObjectAction actn = this.dataSource.getObject(this.config.sourceTree.objectName).getAction('query');
-        listener.prefix = getResultsPrefix(actn);
-        cfg.traverseSource(listener);
-        return listener.expansions;
+        return expansions;
     }
 
 
@@ -135,11 +127,11 @@ public with sharing class StripeHandler extends ServiceHandler {
         return null;
     }
 
-    private String getResultsPrefix(ExternalObjectAction actn) {
+    private RecordPath getResultsPrefix(ExternalObjectAction actn) {
         if (actn != null) {
             Map<String,Object> extras = actn.getExtras();
             if (extras != null) {
-                return (String)extras.get('resultsPrefix');
+                return new RecordPath((String)extras.get('resultsPrefix'));
             }
         }
         return null;
