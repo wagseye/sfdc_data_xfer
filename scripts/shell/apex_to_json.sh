@@ -35,7 +35,7 @@ url_encode() {
 encoded_json=$(url_encode "$formatted_json")
 
 # Construct URL with data and auto-process flag
-url="https://jsonformatter.curiousconcept.com/?data=$encoded_json&process=true"
+url="https://jsonformatter.curiousconcept.com/?data=$encoded_json&process=true&template=twospace"
 
 # Output formatted JSON
 echo "$formatted_json"
