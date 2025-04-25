@@ -44,6 +44,18 @@ public with sharing virtual class ObjectRelation extends ObjectWrapper {
      ***************************************************************************************************/
     public String getField2() { return (String)this.get('Field2__c'); }
 
+    /***  Accessor 1  *************************************************************************************
+     * Holds the name of the platform-dependent relation on Object 1 (if is exists) used to access the full Object 2 record.
+     * As opposed to the lookup field, which just holds a reference key, this relation gives access to the full record
+     ***************************************************************************************************/
+    public String getAccessor1() { return (String)this.get('Accessor1__c'); }
+
+    /***  Accessor 2  *************************************************************************************
+     * Holds the name of the platform-dependent relation on Object 2 (if is exists) used to access the full Object 1 record.
+     * As opposed to the lookup field, which just holds a reference key, this relation gives access to the full record
+     ***************************************************************************************************/
+    public String getAccessor2() { return (String)this.get('Accessor2__c'); }
+
     /***  IntermediateObject  **************************************************************************
      * Only used for junction relations. It holds a reference to the ExternalObject that is used to join Object 1 to Object 2.
      * This object must have its own relations relating back to Object 1 and Object 2 (referenced in Field 1 and Field 2)
