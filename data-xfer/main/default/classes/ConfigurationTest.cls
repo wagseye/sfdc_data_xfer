@@ -69,6 +69,9 @@ private class ConfigurationTest {
         List<Configuration.MappedObject> objs = config.sourceObjects;
         System.assertEquals(4, objs.size());
 
+        // We use the list (instead of the map) to ensure the values are in the correct order
+        // They should be because Apex maps return values in the order they were inserted, but it's
+        // nice to verify because other things will break if this order is not correct
         Configuration.MappedObject obj = objs[0];
         System.assertNotEquals(null, obj);
         System.assertEquals(null, obj.parent);

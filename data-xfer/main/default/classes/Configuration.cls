@@ -57,15 +57,17 @@ public with sharing class Configuration {
     public MappedObject targetTree;
 
     // These are not set in the configuration json, but are manually set when the json is parsed
-    public List<MappedObject> sourceObjects { public get; private set; }
-    public List<MappedObject> targetObjects { public get; private set; }
+    public Map<RecordPath,MappedObject> targetObjectMap { public get; private set; }
+    public List<MappedObject> targetObjects { public get { return this.targetObjectMap.values(); } }
+    public Map<RecordPath,MappedObject> sourceObjectMap { public get; private set; }
+    public List<MappedObject> sourceObjects { public get { return this.sourceObjectMap.values(); } }
 
     public static Configuration fromString(String configStr) {
         Configuration config = (Configuration)JSON.deserialize(configStr, Configuration.class);
-        config.sourceObjects = new List<MappedObject>();
-        config.targetObjects = new List<MappedObject>();
-        parseTreeRecursive(config.sourceObjects, config.sourceTree, new RecordPath());
-        parseTreeRecursive(config.targetObjects, config.targetTree, new RecordPath());
+        config.sourceObjectMap = new Map<RecordPath,MappedObject>();
+        config.targetObjectMap = new Map<RecordPath,MappedObject>();
+        parseTreeRecursive(config.sourceObjectMap, config.sourceTree, new RecordPath());
+        parseTreeRecursive(config.targetObjectMap, config.targetTree, new RecordPath());
         validateConfiguration(config);
         return config;
     }
@@ -76,16 +78,16 @@ public with sharing class Configuration {
         if ((config.targetTree != null) && (config.targetTree.parentRelation != null)) throw new StandardException('The top level target object must not specify a parent relation');
     }
 
-    private static void parseTreeRecursive(List<MappedObject> objList, MappedObject obj, RecordPath currPath) {
+    private static void parseTreeRecursive(Map<RecordPath,MappedObject> objMap, MappedObject obj, RecordPath currPath) {
         if (obj != null) {
-            objList.add(obj);
             RecordPath newPath = new RecordPath(currPath);
             newPath.addToEnd(obj.objectName);
             obj.path = newPath.toString(); // TODO: change MappedObject.path to be a RecordPath
+            objMap.put(newPath, obj);
             if (obj.childObjects != null) {
                 for (MappedObject child : obj.childObjects) {
                     child.parent = obj;
-                    parseTreeRecursive(objList, child, newPath);
+                    parseTreeRecursive(objMap, child, newPath);
                 }
             }
         }
