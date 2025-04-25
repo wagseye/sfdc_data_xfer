@@ -62,16 +62,6 @@ public with sharing abstract class ServiceHandler {
             if (this.isSuccess()) return null;
             return this.response.getStatus();
         }
-
-        public virtual List<DataRecord> getRecords() {
-            if (this.records == null) {
-                this.records = new List<DataRecord>();
-                // This deserializes the entire response into a single record, which is probably wrong, but it's an
-                // attempt at a reasonable default implementation
-                this.records.add(new DataRecord((Map<String,Object>)JSON.deserializeUntyped(this.response.getBody())));
-            }
-            return this.records;
-        }
     }
 
     // TODO: find a better way to do this!

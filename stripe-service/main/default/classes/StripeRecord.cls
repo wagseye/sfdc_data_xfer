@@ -1,6 +1,6 @@
 public with sharing class StripeRecord extends DataRecord {
     public StripeRecord(Map<String,Object> record) {
-        super(record);
+        super(record, null, null);
     }
 
     // Date/time values in Stripe are stored as posix-type timestamps based in seconds. Salesforce Datetime objects

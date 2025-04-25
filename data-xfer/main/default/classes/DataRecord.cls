@@ -1,9 +1,72 @@
-// TODO: this should eventually be made abstract
 public with sharing virtual class DataRecord {
+    public DataRecord parent { public get{System.assert(false); return null; } private set; }
+    public RecordPath path { public get; private set; }
+    public Boolean isList { public get; private set; }
     private Map<String,Object> record;
+    private List<DataRecord> children;
 
-    public DataRecord(Map<String,Object> record) {
-        this.record = record;
+    public DataRecord(Object record, DataRecord parent, RecordPath path) {
+        this.parent = parent;
+        this.path = path;
+        if (record instanceof List<Object>) {
+            // If the record is an instance of a list, parse out the children
+            this.isList = true;
+            this.children = new List<DataRecord>();
+            Integer idx = 0;
+            for (Object child : (List<Object>)record) {
+                if (!(child instanceof Map<String,Object>)) throw new StandardException('Unexpected list child type');
+                RecordPath childPath = new RecordPath(this.path);
+                DataRecord childRecord = new DataRecord((Map<String,Object>)child, this, childPath);
+                this.children.add(childRecord);
+                idx++;
+            }
+        } else if (record instanceof Map<String,Object>) {
+            // If the record is an instance of a map, set it as the internal record
+            this.isList = false;
+            this.record = (Map<String,Object>)record;
+        } else {
+            // Otherwise we don't know what to do with the record, so throw an exception
+            throw new StandardException('Unexpected record type');
+        }
+    }
+
+    public DataRecord getChild(Integer idx) {
+        System.assert(false); // TODO: Remove this line or the whole method
+        if (!this.isList) throw new StandardException('This method can only be called on a list node');
+        return this.children[idx];
+    }
+
+    public DataRecord getChild(RecordPath relativePath) {
+        if (this.record == null) throw new StandardException('This method can not be used for list nodes');
+        Object currRec = this.record;
+        // Traverse down the tree based on the elements in the path
+        for (String objName : relativePath.getElements()) {
+            if (!(currRec instanceof Map<String,Object>)) throw new StandardException('Unexpected object found at ' + objName + ' in path ' + relativePath);
+            Object childRec = ((Map<String,Object>)currRec).get(objName);
+            if (childRec == null) return null;
+            // It is valid for currRec to be a list if it is the last element in the path. If it's not the last element
+            // the type check above will throw an error because getChild() can return a list but can't traverse over one.
+            currRec = childRec;
+        }
+        if (currRec != null) {
+            RecordPath childPath = new RecordPath(this.path);
+            childPath.addToEnd(relativePath);
+            return new DataRecord(currRec, this, childPath);
+        }
+        return null;
+    }
+
+    public List<DataRecord> getChildren() {
+        if (!this.isList) throw new StandardException('This method can only be called on a list node');
+        return this.children;
+    }
+
+    public Object getValue(String fldName) {
+        if (this.isList) throw new StandardException('This method can not be used for a list node');
+        Object value = this.record.get(fldName);
+        if (value instanceof Map<String,Object>) throw new StandardException('Value at ' + fldName + ' is a child object');
+        if (value instanceof List<Object>) throw new StandardException('Value at ' + fldName + ' is a child list');
+        return value;
     }
 
     // TODO: this method is a temporary solution, we need to figure out a better system
@@ -33,7 +96,9 @@ public with sharing virtual class DataRecord {
             if (!(value instanceof Map<String,Object>)) throw new StandardException('Child component ' + fldComponent + ' is not an object');
             currentMap = (Map<String,Object>)value;
         }
-        return new DataRecord(currentMap);
+        RecordPath childPath = new RecordPath(this.path);
+        childPath.addToEnd(fldName);
+        return new DataRecord(currentMap, this, childPath);
     }
 
     public virtual List<DataRecord> getChildren(String fldName) {
@@ -62,7 +127,7 @@ public with sharing virtual class DataRecord {
             List<DataRecord> children = new List<DataRecord>();
             for (Object obj : listObjects) {
                 if (!(obj instanceof Map<String,Object>)) throw new StandardException('Child record is not a map');
-                children.add(new DataRecord((Map<String,Object>)obj));
+                children.add(new DataRecord((Map<String,Object>)obj, this, this.path));
             }
             return children;
         }
