@@ -91,6 +91,17 @@ public with sharing class RecordPath {
         this.path = String.join(elements, this.delimiter);
     }
 
+    public void addToStart(RecordPath otherPath) {
+        // This is a quick, basic implementation that probably has some edge cases which break...
+        if ((otherPath != null) && !otherPath.isEmpty()) {
+            if (String.isNotBlank(this.path)) {
+                this.path = otherPath.path + this.delimiter + this.path;
+            } else {
+                this.path = otherPath.path;
+            }
+        }
+    }
+
     public String removeFromStart() {
         List<String> elements = this.getElements();
         if (elements.isEmpty()) return null;
@@ -124,11 +135,13 @@ public with sharing class RecordPath {
     }
 
     public void addToEnd(RecordPath otherPath) {
-        // This is a quick, basic implementation that probably has some edge cases which break...
-        if (String.isNotBlank(this.path)) {
-            this.path += this.delimiter + otherPath;
-        } else {
-            this.path = otherPath.toString();
+        if ((otherPath != null) && !otherPath.isEmpty()) {
+            // This is a quick, basic implementation that probably has some edge cases which break...
+            if (String.isNotBlank(this.path)) {
+                this.path += this.delimiter + otherPath.path;
+            } else {
+                this.path = otherPath.path;
+            }
         }
     }
 
@@ -146,13 +159,15 @@ public with sharing class RecordPath {
         // We can get around this, but it'll be a harder implementation (that we may or may not ever need)
         System.assertEquals(this.delimiter, otherPath.delimiter);
 
-        if (String.isBlank(this.path)) {
-            if (String.isBlank(otherPath.path)) throw new StandardException('No path set');
-        } else {
-           if (!this.path.endsWith(otherPath.path)) throw new StandardException('Parameter path () ' + otherPath.path + ' is not a suffix of this path (' + this.path + ')');
-           if (!this.path.equals(otherPath.path)) {
-               return new RecordPath(this.path.removeEnd(this.delimiter + otherPath.path));
-           }
+        if ((otherPath != null) && !otherPath.isEmpty()) {
+            if (String.isBlank(this.path)) {
+                throw new StandardException('Parameter path (' + otherPath.path + ') is not a suffix of this path (' + this.path + ')');
+            } else {
+                if (!this.path.endsWith(otherPath.path)) throw new StandardException('Parameter path (' + otherPath.path + ') is not a suffix of this path (' + this.path + ')');
+                if (!this.path.equals(otherPath.path)) {
+                    return new RecordPath(this.path.removeEnd(this.delimiter + otherPath.path));
+                }
+            }
         }
         return new RecordPath();
     }
