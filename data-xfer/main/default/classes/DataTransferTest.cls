@@ -7,23 +7,70 @@ private class DataTransferTest {
         String configStr = '{' +
         '"sourceSystem": "test",' +
         '"sourceTree": {' +
-        '  "objectName": "parent",' +
+        '  "objectName": "payment_intent",' +
         '  "childObjects": [{' +
-        '    "objectName": "child1",' +
-        '    "parentRelation": "test_p1_c1",' +
+        '    "objectName": "customer",' +
+        '    "parentRelation": "test_pi_cust",' +
         '    "childObjects": null' +
         '  },{' +
-        '  "objectName": "child2",' +
-        '  "parentRelation": "test_p1_c2",' +
-        '  "childObjects": [{' +
-        '    "objectName": "grand",' +
-        '    "parentRelation": "test_c2_g1",' +
-        '    "childObjects": null' +
+        '    "objectName": "invoice",' +
+        '    "parentRelation": "test_pi_inv",' +
+        '    "childObjects": [{' +
+        '      "objectName": "lines.data",' +
+        '      "parentRelation": "test_inv_li",' +
+        '      "childObjects": null' +
+        '    }]' +
         '  }]' +
-        '}]' +
+        '},' +
+        '"targetTree":{' +
+        '  "objectName":"parent",' +
+        '  "childObjects":[{' +
+        '    "objectName":"child1",' +
+        '    "parentRelation":"test_p1_c1",' +
+        '    "childObjects":null' +
+        '  },{' +
+        '    "objectName":"child2",' +
+        '    "parentRelation":"test_p1_c2",' +
+        '    "childObjects":[{' +
+        '      "objectName":"grand",' +
+        '      "parentRelation":"test_c2_g1",' +
+        '      "childObjects":null' +
+        '    }]' +
+        '  }]' +
         '}}';
 
         return Configuration.fromString(configStr);
+    }
+
+    public static Map<String,Object> getTestRecord() {
+        // This is representing a real record, reflecting the schema laid out in the config source tree. The structure should reflect
+        // the configuration, but the field names should be different and each type should have its own unique fields
+        String recordStr = '{' +
+        '  "type": "payment_intent_type",' +
+        '  "customer": {' +
+        '    "type": "customer_type",' +
+        '    "customer_data": "customer data"' +
+        '  },' +
+        '  "invoice": {' +
+        '    "type": "invoice_type",' +
+        '    "invoice_data": "invoice data",' +
+        '    "lines": {' +
+        '      "data": [{' +
+        '        "type": "invoiceitem_type",' +
+        '        "item_data": "item data 1"' +
+        '      },{' +
+        '        "type": "invoiceitem_type",' +
+        '        "item_data": "item data 2"' +
+        '    }]}' +
+        '  },' +
+        '  "child3": {' +
+        '    "type": "child3_type",' +
+        '    "child3_data": "child 3 data",' +
+        '    "child3Children": null' +
+        '  }' +
+        '}';
+
+        return (Map<String,Object>)JSON.deserializeUntyped(recordStr);
     }
 
     private static Data_Source__mdt addTestDataSource() {
@@ -77,6 +124,53 @@ private class DataTransferTest {
     /************************************************************************/
     /*  Test methods
     /************************************************************************/
+    @isTest
+    static void testLoadDataRecords() {
+        Configuration config = getTestConfig();
+        Map<String,Object> rec = getTestRecord();
+        ServiceHandler hdlr = new ServiceHandlerTest.ServiceHandlerMock();
+        Test.startTest();
+        {
+            Map<RecordPath,List<DataRecord>> recs = DataTransfer.loadDataRecords(config, hdlr, rec);
+            for (RecordPath path : recs.keySet()) {
+                for (DataRecord dr : recs.get(path)) {
+                    System.debug(path.toString() + ': ' + dr.path);
+                }
+            }
+            System.assertNotEquals(null, recs);
+            System.assertEquals(4, recs.size());
+
+            // First, explicitly check that the irrelevant data was not added to the map
+            System.assert(!recs.containsKey(new RecordPath('payment_intent.child3')));
+
+            List<DataRecord> pathObjects = recs.get(new RecordPath('payment_intent'));
+            System.assertEquals(1, pathObjects.size());
+            System.assertEquals('payment_intent', pathObjects[0].path.toString());
+            System.assertEquals('payment_intent_type', (String)pathObjects[0].getValue('type'));
+
+            pathObjects = recs.get(new RecordPath('payment_intent.customer'));
+            System.assertEquals(1, pathObjects.size());
+            System.assertEquals('payment_intent.customer', pathObjects[0].path.toString());
+            System.assertEquals('customer_type', (String)pathObjects[0].getValue('type'));
+
+            pathObjects = recs.get(new RecordPath('payment_intent.invoice'));
+            System.assertEquals(1, pathObjects.size());
+            System.assertEquals('payment_intent.invoice', pathObjects[0].path.toString());
+            System.assertEquals('invoice_type', (String)pathObjects[0].getValue('type'));
+
+            System.assert(!recs.containsKey(new RecordPath('payment_intent.invoice.lines')));
+            pathObjects = recs.get(new RecordPath('payment_intent.invoice.lines.data'));
+            System.assertEquals(2, pathObjects.size());
+            System.assertEquals('payment_intent.invoice.lines.data[0]', pathObjects[0].path.toString());
+            System.assertEquals('invoiceitem_type', (String)pathObjects[0].getValue('type'));
+            System.assertEquals('item data 1', (String)pathObjects[0].getValue('item_data'));
+            System.assertEquals('payment_intent.invoice.lines.data[1]', pathObjects[1].path.toString());
+            System.assertEquals('invoiceitem_type', (String)pathObjects[1].getValue('type'));
+            System.assertEquals('item data 2', (String)pathObjects[1].getValue('item_data'));
+        }
+        Test.stopTest();
+    }
+
     @isTest
     static void testGroupTargetObjects() {
         Configuration config = getTestConfig();

@@ -121,4 +121,63 @@ public with sharing class DataTransfer {
         }
         return handles;
     }
+
+    public static Map<RecordPath,List<DataRecord>> loadDataRecords(Configuration config, ServiceHandler hdlr, Map<String,Object> jsonData) {
+        Map<RecordPath,List<DataRecord>> mapRecs = new Map<RecordPath,List<DataRecord>>();
+
+        // TODO: Get the starting place (probably want handler for this?)
+        Object root = jsonData; //handler.getDataRoot();
+        // Is top level a list or an object?
+        RecordPath rootPath = new RecordPath(config.sourceObjects[0].path);
+        List<DataRecord> rootRecords = new List<DataRecord>();
+        mapRecs.put(rootPath, rootRecords);
+        DataRecord rootRecord = new DataRecord(jsonData, null, rootPath);
+        if (rootRecord.isList) {
+            rootRecords.addAll(rootRecord.getChildren());
+        } else {
+            rootRecords.add(rootRecord);
+        }
+
+        for (Configuration.MappedObject configObj : config.sourceObjects) {
+            RecordPath path = new RecordPath(configObj.path);
+            parseDataRecords(path, mapRecs);
+        }
+
+        return mapRecs;
+    }
+
+    public static void parseDataRecords(RecordPath configPath, Map<RecordPath,List<DataRecord>> mapRecs) {
+        List<DataRecord> children = mapRecs.get(configPath);
+        if (children == null) {
+            // Go up the hierarchy, looking for the longest prefix path that already has DataRecords created for it
+            RecordPath parentPath = new RecordPath(configPath);
+            List<DataRecord> parentList;
+            while (!parentPath.isEmpty() && (parentList == null)) {
+                parentPath.removeFromEnd();
+                parentList = mapRecs.get(parentPath);
+            }
+            if (parentList == null) throw new StandardException('Did not find parent record');
+
+            // Retrieve the child record. If it is a list, add all child elements, otherwise add the record itself
+            RecordPath relativePath = configPath.removeFromStart(parentPath);
+            children = new List<DataRecord>();
+            mapRecs.put(configPath, children);
+            Boolean childIsList;
+            for (DataRecord parent : parentList) {
+                DataRecord child = parent.getChild(relativePath);
+                if (childIsList == null) {
+                    childIsList = child.isList;
+                } else if (childIsList != child.isList) throw new StandardException('Found isList mismatch on children at path ' + configPath);
+                if (childIsList) {
+                    List<DataRecord> grandchildren = child.getChildren();
+                    for (Integer idx=0; idx<grandchildren.size(); idx++) {
+                        grandchildren[idx].path.setIndex(idx);
+                        children.add(grandchildren[idx]);
+                    }
+                } else {
+                    children.add(child);
+                }
+            }
+        }
+    }
 }
