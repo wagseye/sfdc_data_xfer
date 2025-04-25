@@ -31,6 +31,10 @@ public with sharing class TargetRecordHandle {
     public DataRecord[] sourceRecords;
     public DataRecord[] targetRecords;
     public Configuration.MappedObject targetObject;
+    public Boolean isWritable { public get; public set {
+        if ((this.isWritable != null) && (value != false)) throw new StandardException('IsWritable can only be updated to "false"');
+        this.isWritable = value;
+    } } { this.isWritable = true; }
 
     public List<ParentRelation> relations = new List<ParentRelation>();
 
@@ -41,5 +45,11 @@ public with sharing class TargetRecordHandle {
     public void addParentRelation(ParentRelation rel) {
         if (rel.parent == null) throw new StandardException('A relation without no parent object can not be added');
         this.relations.add(rel);
+    }
+
+    public void setValue(ExternalObjectField fld, Object value) {
+        if (this.isWritable) {
+            this.targetRecords[0].set(fld.getApiName(), value, fld.getType());
+        }
     }
 }
