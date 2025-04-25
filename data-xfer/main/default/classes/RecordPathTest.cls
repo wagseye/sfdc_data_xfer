@@ -8,13 +8,24 @@ private class RecordPathTest {
         System.assertEquals(true,  RecordPath.isValidPath('a_b-c', '.'));
         System.assertEquals(false, RecordPath.isValidPath('abc.', '.'));
         System.assertEquals(false, RecordPath.isValidPath('.abc', '.'));
-        System.assertEquals(true,  RecordPath.isValidPath('abc.def', '.'));
-        System.assertEquals(false, RecordPath.isValidPath('abc\\.def', '.'));
-        System.assertEquals(true,  RecordPath.isValidPath('abc.123', '.'));
-        System.assertEquals(true,  RecordPath.isValidPath('abc.123.DEF', '.'));
-        System.assertEquals(false, RecordPath.isValidPath('abc.123.DEF.', '.'));
-        System.assertEquals(true,  RecordPath.isValidPath('a_c.1-3.D_F', '.'));
-        System.assertEquals(false, RecordPath.isValidPath('abc*def', '.'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc.def'));
+        System.assertEquals(false, RecordPath.isValidPath('abc\\.def'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc.123'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc.123.DEF'));
+        System.assertEquals(false, RecordPath.isValidPath('abc.123.DEF.'));
+        System.assertEquals(true,  RecordPath.isValidPath('a_c.1-3.D_F'));
+        System.assertEquals(false, RecordPath.isValidPath('abc*def'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc[]'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc[].123.DEF'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc.123[0].DEF'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc.123[0].DEF[1]'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc.123[].DEF[1]'));
+        System.assertEquals(true,  RecordPath.isValidPath('abc[2].123.DEF[25]'));
+        System.assertEquals(false,  RecordPath.isValidPath('abc[0]a'));
+        System.assertEquals(false,  RecordPath.isValidPath('abc[a]'));
+        System.assertEquals(false,  RecordPath.isValidPath('abc(0)'));
+        System.assertEquals(false,  RecordPath.isValidPath('abc[0][]'));
+        System.assertEquals(false,  RecordPath.isValidPath('abc[0][1]'));
 
         System.assertEquals(true,  RecordPath.isValidPath('abc', '='));
         System.assertEquals(false, RecordPath.isValidPath('abc=', '='));
@@ -23,6 +34,7 @@ private class RecordPathTest {
         System.assertEquals(true,  RecordPath.isValidPath('abc=123', '='));
         System.assertEquals(true,  RecordPath.isValidPath('abc=123=DEF', '='));
         System.assertEquals(false, RecordPath.isValidPath('abc=123=DEF=', '='));
+        System.assertEquals(true,  RecordPath.isValidPath('abc[0]=123', '='));
     }
 
     @isTest
@@ -69,6 +81,29 @@ private class RecordPathTest {
         System.assertEquals('abc', elements[0]);
         System.assertEquals('d-f', elements[1]);
         System.assertEquals('g_i', elements[2]);
+    }
+
+    @isTest
+    static void testSetIndex() {
+        RecordPath path = new RecordPath('abc.def');
+        path.setIndex(1);
+        System.assertEquals('abc.def[1]', path.toString());
+        path.setIndex(5);
+        System.assertEquals('abc.def[5]', path.toString());
+
+        path = new RecordPath('abc.def[]');
+        path.setIndex(2);
+        System.assertEquals('abc.def[2]', path.toString());
+
+        path = new RecordPath('abc[].def');
+        path.setIndex(25);
+        System.assertEquals('abc[].def[25]', path.toString());
+
+        path = new RecordPath('abc[0].def[]');
+        path.setIndex(3);
+        System.assertEquals('abc[0].def[3]', path.toString());
+        path.setIndex(4);
+        System.assertEquals('abc[0].def[4]', path.toString());
     }
 
     @isTest

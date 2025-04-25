@@ -2,9 +2,10 @@ public with sharing class RecordPath {
     // Static elements
     public static final String DEFAULT_DELIMITER = '.';
 
+    public static Boolean isValidPath(String path) { return isValidPath(path, DEFAULT_DELIMITER); }
     public static Boolean isValidPath(String path, String delimiter) {
         if (String.isBlank(path)) return true; // Path can be empty (for now?)
-        String pathPattern = String.format('[a-zA-Z0-9_\\-]+({0}[a-zA-Z0-9_\\-]+)*', new List<String>{ escapeDelimiter(delimiter) });
+        String pathPattern = String.format('[a-zA-Z0-9_\\-]+(\\[[0-9]*\\])?({0}[a-zA-Z0-9_\\-]+(\\[[0-9]*\\])?)*', new List<String>{ escapeDelimiter(delimiter) });
         return Pattern.matches(pathPattern, path);
     }
 
@@ -55,13 +56,27 @@ public with sharing class RecordPath {
         return false;
     }
     
+    public Boolean isEmpty() { return String.isBlank(this.path); }
     public override Integer hashCode() {
         return this.toString().hashCode();
     }
 
+    public Integer size() { return this.getElements().size(); }
+
     public List<String> getElements() {
         if (String.isBlank(this.path)) return new List<String>();
         return this.path.split(escapeDelimiter(this.delimiter));
+    }
+
+    public void setIndex(Integer idx) {
+        if (idx < 0) throw new StandardException('Invalid index: ' + idx);
+        Pattern indexPattern = Pattern.compile('^(.*)(\\[[0-9]*\\])$');
+        Matcher mtchr = indexPattern.matcher(this.path);
+        if (mtchr.matches()) {
+            this.path = mtchr.group(1) + '[' + idx + ']';
+        } else {
+            this.path = this.path + '[' + idx + ']';
+        }
     }
 
     public void addToStart(String prefix) {
