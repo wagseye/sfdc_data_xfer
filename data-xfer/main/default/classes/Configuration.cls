@@ -96,7 +96,7 @@ public with sharing class Configuration {
     }
 
     public void traverseTarget(Object listener) {
-        traversePrivate(listener, this.sourceTree);
+        traversePrivate(listener, this.targetTree);
     }
 
     private void traversePrivate(Object listener, MappedObject obj) {
