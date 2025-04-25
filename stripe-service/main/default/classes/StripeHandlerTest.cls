@@ -21,9 +21,9 @@ private class StripeHandlerTest {
         ObjectWrapper.addMock(new ObjectWrapperTest.TestSelector(ObjectRelation.class, mapRels_m));
     }
 
-    public static String getTestConfigString() {
+    public static Configuration getTestConfig() {
         // TODO: refine this
-        return '{' +
+        String configStr = '{' +
         '"sourceSystem": "strp",' +
         '"sourceTree": {' +
         '  "objectName": "parent1",' +
@@ -41,6 +41,8 @@ private class StripeHandlerTest {
         '  }]' +
         '}]' +
         '}}';
+
+        return Configuration.fromString(configStr);
     }
 
     @isTest
@@ -51,7 +53,7 @@ private class StripeHandlerTest {
         addObjectRelations();
         ExternalObjectTest.addTestExternalObject();
         Object_Action__mdt actn_m = ExternalObjectActionTest.addTestExternalObjectAction();
-        Configuration cfg = Configuration.fromString(getTestConfigString());
+        Configuration cfg = getTestConfig();
         DataTransfer.init(cfg);
         StripeHandler hdlr = (StripeHandler)DataTransfer.handler;
 
