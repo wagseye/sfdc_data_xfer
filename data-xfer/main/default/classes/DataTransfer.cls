@@ -43,64 +43,23 @@ public with sharing class DataTransfer {
         return hdlr;
     }
 
-    private class ConfigListener implements Configuration.ObjectListener {
-        public Map<String,Integer> tiers = new Map<String,Integer>();
-        public Map<String,Configuration.MappedObject> objects = new  Map<String,Configuration.MappedObject>();
-        public Map<String,List<TargetRecordHandle.ParentRelation>> relations = new Map<String,List<TargetRecordHandle.ParentRelation>>();
-        public void onConfigurationObject(Configuration.MappedObject obj, Configuration.MappedObject parent) {
-            objects.put(obj.path, obj);
-            if (parent != null) {
-                Integer parentTier = tiers.get(parent.path);
-                if (parentTier == null) throw new StandardException('Unable to find parent tier');
-                ObjectRelation rltn = ObjectRelation.getRecordByName(obj.parentRelation);
-                if (rltn == null) throw new StandardException('Unable to find object relation with name ' + obj.parentRelation);
-                if (rltn.isJunction()) {
-                    tiers.put(obj.path, parentTier);
-                    JunctionObject junc = new JunctionObject();
-                    ExternalObject intObj = rltn.getIntermediateObject();
-                    if (intObj == null) throw new StandardException('Did not find intermediate object for object relation ' + rltn.getApiName());
-                    junc.objectName = intObj.getName();
-                    junc.path = obj.path + '.' + junc.objectName;
-                    objects.put(junc.path, junc);
-                    tiers.put(junc.path, parentTier + 1);
+    public static List<List<TargetRecordHandle>> groupTargetObjects(Configuration cfg) {
+        Map<RecordPath,Configuration.MappedObject> objMap = new Map<RecordPath,Configuration.MappedObject>();
+        Map<RecordPath,List<TargetRecordHandle.ParentRelation>> relMap = getRelations(cfg.targetObjects, /*output*/ objMap);
+        Map<RecordPath,Integer> tierMap = calculateTiers(objMap, relMap);
 
-                    ObjectRelation parentSubRel = rltn.getSubRelation1();
-                    ObjectRelation childSubRel = rltn.getSubRelation2();
-                    if (parentSubRel == null) throw new StandardException('Could not find parent subrelation for junction ' + rltn.getApiName());
-                    if (childSubRel == null) throw new StandardException('Could not find child subrelation for junction ' + rltn.getApiName());
-                    List<TargetRecordHandle.ParentRelation> rels = new List<TargetRecordHandle.ParentRelation>();
-                    rels.add(new TargetRecordHandle.ParentRelation(parent.path, parentSubRel.getField1(), parentSubRel.getField2()));
-                    rels.add(new TargetRecordHandle.ParentRelation(obj.path, childSubRel.getField1(), childSubRel.getField2()));
-                    if (!parentSubRel.getObject1().getApiName().equalsIgnoreCase(parent.objectName)) throw new StandardException('Object 1 on relation ' + parentSubRel.getApiName() + ' is not ' + parent.objectName);
-                    if (!childSubRel.getObject1().getApiName().equalsIgnoreCase(obj.objectName)) throw new StandardException('Object 1 on relation ' + childSubRel.getApiName() + ' is not ' + obj.objectName);
-                    relations.put(junc.path, rels);
-                } else { // To get here the relation MUST be a reference
-                    tiers.put(obj.path, parentTier + 1);
-                    TargetRecordHandle.ParentRelation rel = new TargetRecordHandle.ParentRelation(parent.path, rltn.getField1(), rltn.getField2());
-                    relations.put(obj.path, new List<TargetRecordHandle.ParentRelation>{ rel });
-                }
-            } else {
-                tiers.put(obj.path, 0);
-            }
-        }
+        return createTierHandles(objMap, relMap, tierMap);
     }
 
-    public static List<List<TargetRecordHandle>> groupTargetObjects(Configuration cfg) {
-        List<List<TargetRecordHandle>> handles;
-        ConfigListener listener = new ConfigListener();
-        cfg.traverseTarget(listener);
+    private static List<List<TargetRecordHandle>> createTierHandles(Map<RecordPath,Configuration.MappedObject> objMap, Map<RecordPath,List<TargetRecordHandle.ParentRelation>> relMap, Map<RecordPath,Integer> tierMap) {
+        Integer maxTier = getMaxTier(tierMap);
+        List<List<TargetRecordHandle>> handles = new List<List<TargetRecordHandle>>(maxTier + 1);
+        Map<RecordPath,TargetRecordHandle> handleMap = new Map<RecordPath,TargetRecordHandle>();
 
-        // Instantiate the list to the correct size
-        Integer maxTier = 0;
-        for (Integer tier : listener.tiers.values()) {
-            if (tier > maxTier) maxTier = tier;
-        }
-        handles = new List<List<TargetRecordHandle>>(maxTier + 1);
-        Map<String,TargetRecordHandle> handlesByPath = new Map<String,TargetRecordHandle>();
-
-        for (Configuration.MappedObject obj : listener.objects.values()) {
-            Integer tier = listener.tiers.get(obj.path);
-            List<TargetRecordHandle.ParentRelation> rels = listener.relations.get(obj.path);
+        for (Configuration.MappedObject obj : objMap.values()) {
+            RecordPath objPath = new RecordPath(obj.path);
+            Integer tier = tierMap.get(objPath);
+            List<TargetRecordHandle.ParentRelation> rels = relMap.get(objPath);
             List<TargetRecordHandle> tierHandles = handles[tier];
             if (tierHandles == null) tierHandles = new List<TargetRecordHandle>();
             handles[tier] = tierHandles;
@@ -110,16 +69,107 @@ public with sharing class DataTransfer {
             hndl.status = TargetRecordHandle.Status.PENDING;
             if (rels != null) {
                 for (TargetRecordHandle.ParentRelation rel : rels) {
-                    TargetRecordHandle parent = handlesByPath.get(rel.parentPath);
+                    TargetRecordHandle parent = handleMap.get(new RecordPath(rel.parentPath));
                     if (parent == null) throw new StandardException('Did not find parent object with path ' + rel.parentPath + ' for object ' + obj.path);
                     rel.parent = parent;
                     hndl.addParentRelation(rel);
                 }
             }
             tierHandles.add(hndl);
-            handlesByPath.put(obj.path, hndl);
+            handleMap.put(new RecordPath(obj.path), hndl);
         }
         return handles;
+    }
+
+    private static Integer getMaxTier(Map<RecordPath,Integer> tierMap) {
+        // Find the number of tiers by looking for the highest number in the map
+        Integer maxTier = 0;
+        for (Integer tier : tierMap.values()) {
+            if (tier > maxTier) maxTier = tier;
+        }
+        return maxTier;
+    }
+
+    private static Map<RecordPath,Integer> calculateTiers(Map<RecordPath,Configuration.MappedObject> objMap, Map<RecordPath,List<TargetRecordHandle.ParentRelation>> relMap) {
+        Map<RecordPath,Integer> tierMap = new Map<RecordPath,Integer>();
+        for (Configuration.MappedObject obj : objMap.values()) {
+            Integer tier;
+            if (obj.parent == null) {
+                tier = 0;
+            } else {
+                Integer parentTier = tierMap.get(new RecordPath(obj.parent.path));
+                if (parentTier == null) throw new StandardException('Unable to find parent tier');
+                if (obj instanceof JunctionObject) {
+                    // The junction object always ends up one tier below its parent(s)
+                    tier = parentTier + 1;
+                } else {
+                    ObjectRelation rltn = ObjectRelation.getRecordByName(obj.parentRelation);
+                    if (rltn == null) throw new StandardException('Unable to find object relation with name ' + obj.parentRelation);
+                    if (rltn.isJunction()) {
+                        // If we're using a junction object, the two objects will be in the same tier because they don't have any interdependencies
+                        tier = parentTier;
+                    } else {
+                        // A normal reference relation needs its parent's id so it is added to the tier below the parent
+                        tier = parentTier + 1;
+                    }
+                }
+            }
+            tierMap.put(new RecordPath(obj.path), tier);
+        }
+        return tierMap;
+    }
+
+    private static Map<RecordPath,List<TargetRecordHandle.ParentRelation>> getRelations(List<Configuration.MappedObject> objs, /*output*/ Map<RecordPath,Configuration.MappedObject> objMap) {
+        Map<RecordPath,List<TargetRecordHandle.ParentRelation>> relMap = new Map<RecordPath,List<TargetRecordHandle.ParentRelation>>();
+        for (Configuration.MappedObject obj : objs) {
+            objMap.put(new RecordPath(obj.path), obj);
+            if (obj.parent != null) {
+                ObjectRelation rltn = ObjectRelation.getRecordByName(obj.parentRelation);
+                if (rltn == null) throw new StandardException('Unable to find object relation with name ' + obj.parentRelation);
+                if (rltn.isJunction()) {
+                    JunctionObject junc = createJunctionObject(obj, rltn);
+                    List<TargetRecordHandle.ParentRelation> rels = createJunctionRelations(obj, rltn);
+                    RecordPath juncPath = new RecordPath(junc.path);
+                    relMap.put(juncPath, rels);
+                    objMap.put(juncPath, junc);
+                } else { // The relation is a reference
+                    TargetRecordHandle.ParentRelation rel = new TargetRecordHandle.ParentRelation(obj.parent.path, rltn.getField1(), rltn.getField2());
+                    relMap.put(new RecordPath(obj.path), new List<TargetRecordHandle.ParentRelation>{ rel });
+                }
+            }
+        }
+        return relMap;
+    }
+
+    private static JunctionObject createJunctionObject(Configuration.MappedObject obj, ObjectRelation rltn) {
+        if (!rltn.isJunction()) throw new StandardException('Relation is not a junction');
+
+        JunctionObject junc = new JunctionObject();
+        ExternalObject intObj = rltn.getIntermediateObject();
+        if (intObj == null) throw new StandardException('Did not find intermediate object for object relation ' + rltn.getApiName());
+        junc.objectName = intObj.getName();
+        junc.parent = obj;
+        RecordPath juncPath = new RecordPath(obj.path);
+        juncPath.addToEnd(junc.objectName);
+        junc.path = juncPath.toString();
+
+        return junc;
+    }
+
+    public static List<TargetRecordHandle.ParentRelation> createJunctionRelations(Configuration.MappedObject obj, ObjectRelation rltn) {
+        if (!rltn.isJunction()) throw new StandardException('Relation is not a junction');
+
+        List<TargetRecordHandle.ParentRelation> rels = new List<TargetRecordHandle.ParentRelation>();
+        ObjectRelation parentSubRel = rltn.getSubRelation1();
+        ObjectRelation childSubRel = rltn.getSubRelation2();
+        if (parentSubRel == null) throw new StandardException('Could not find parent subrelation for junction ' + rltn.getApiName());
+        if (childSubRel == null) throw new StandardException('Could not find child subrelation for junction ' + rltn.getApiName());
+        rels.add(new TargetRecordHandle.ParentRelation(obj.parent.path, parentSubRel.getField1(), parentSubRel.getField2()));
+        rels.add(new TargetRecordHandle.ParentRelation(obj.path, childSubRel.getField1(), childSubRel.getField2()));
+        if (!parentSubRel.getObject1().getApiName().equalsIgnoreCase(obj.parent.objectName)) throw new StandardException('Object 1 on relation ' + parentSubRel.getApiName() + ' is not ' + obj.parent.objectName);
+        if (!childSubRel.getObject1().getApiName().equalsIgnoreCase(obj.objectName)) throw new StandardException('Object 1 on relation ' + childSubRel.getApiName() + ' is not ' + obj.objectName);
+
+        return rels;
     }
 
     public static Map<RecordPath,List<DataRecord>> loadDataRecords(Configuration config, ServiceHandler hdlr, Map<String,Object> jsonData) {
