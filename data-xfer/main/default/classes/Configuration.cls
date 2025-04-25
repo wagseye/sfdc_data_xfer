@@ -80,7 +80,7 @@ public with sharing class Configuration {
         if (obj != null) {
             objList.add(obj);
             RecordPath newPath = new RecordPath(currPath);
-            newPath.append(obj.objectName);
+            newPath.addToEnd(obj.objectName);
             obj.path = newPath.toString(); // TODO: change MappedObject.path to be a RecordPath
             if (obj.childObjects != null) {
                 for (MappedObject child : obj.childObjects) {
