@@ -35,6 +35,7 @@ public with sharing class RecordPath {
     }
 
     public RecordPath(RecordPath other) {
+        if (other == null) throw new StandardException('A valid path must be provided');
         if (!isValidPath(other.path, other.delimiter)) throw new StandardException('Path is not a valid format');
         this.path = other.path;
         this.delimiter = other.delimiter;
