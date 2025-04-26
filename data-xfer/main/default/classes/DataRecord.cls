@@ -15,8 +15,8 @@ public with sharing virtual class DataRecord {
             Integer idx = 0;
             for (Object child : (List<Object>)record) {
                 if (!(child instanceof Map<String,Object>)) throw new StandardException('Unexpected list child type');
-                RecordPath childPath = new RecordPath(this.path);
-                DataRecord childRecord = new DataRecord((Map<String,Object>)child, this, childPath);
+                RecordPath childPath = this.path;
+                DataRecord childRecord = new DataRecord((Map<String,Object>)child, this, new RecordPath(childPath)); // Create a new RecordPath for the new record
                 this.children.add(childRecord);
                 idx++;
             }
@@ -127,8 +127,8 @@ public with sharing virtual class DataRecord {
             List<DataRecord> children = new List<DataRecord>();
             for (Object obj : listObjects) {
                 if (!(obj instanceof Map<String,Object>)) throw new StandardException('Child record is not a map');
-                children.add(new DataRecord((Map<String,Object>)obj, this, this.path));
-            }
+                children.add(new DataRecord((Map<String,Object>)obj, this, new RecordPath(this.path))); // Create a new RecordPath for the new record
+            } 
             return children;
         }
         return null;

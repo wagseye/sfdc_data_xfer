@@ -36,7 +36,7 @@ private class ConfigurationTest {
         System.assertNotEquals(null, obj);
         System.assertEquals(null, obj.parent);
         System.assertEquals('parent', obj.objectName);
-        System.assertEquals('parent', obj.path);
+        System.assertEquals('parent', obj.path.toString());
 
         List<Configuration.MappedObject> children = obj.childObjects;
         System.assertEquals(2, children.size());
@@ -44,14 +44,14 @@ private class ConfigurationTest {
         System.assertNotEquals(null, child);
         System.assertEquals(obj, child.parent);
         System.assertEquals('child1', child.objectName);
-        System.assertEquals('parent.child1', child.path);
+        System.assertEquals('parent.child1', child.path.toString());
         System.assertEquals(null, child.childObjects);
 
         child = children[1];
         System.assertNotEquals(null, child);
         System.assertEquals(obj, child.parent);
         System.assertEquals('child2', child.objectName);
-        System.assertEquals('parent.child2', child.path);
+        System.assertEquals('parent.child2', child.path.toString());
         System.assertNotEquals(null, child.childObjects);
         System.assertEquals(1, child.childObjects.size());
 
@@ -59,7 +59,7 @@ private class ConfigurationTest {
         child = child.childObjects[0];
         System.assertEquals(obj, child.parent);
         System.assertEquals('grand', child.objectName);
-        System.assertEquals('parent.child2.grand', child.path);
+        System.assertEquals('parent.child2.grand', child.path.toString());
         System.assertEquals(null, child.childObjects);
     }
 
@@ -76,21 +76,21 @@ private class ConfigurationTest {
         System.assertNotEquals(null, obj);
         System.assertEquals(null, obj.parent);
         System.assertEquals('parent', obj.objectName);
-        System.assertEquals('parent', obj.path);
+        System.assertEquals('parent', obj.path.toString());
         System.assertEquals(2, obj.childObjects.size());
 
         obj = objs[1];
         System.assertNotEquals(null, obj);
         System.assertEquals(objs[0], obj.parent);
         System.assertEquals('child1', obj.objectName);
-        System.assertEquals('parent.child1', obj.path);
+        System.assertEquals('parent.child1', obj.path.toString());
         System.assertEquals(null, obj.childObjects);
 
         obj = objs[2];
         System.assertNotEquals(null, obj);
         System.assertEquals(objs[0], obj.parent);
         System.assertEquals('child2', obj.objectName);
-        System.assertEquals('parent.child2', obj.path);
+        System.assertEquals('parent.child2', obj.path.toString());
         System.assertNotEquals(null, obj.childObjects);
         System.assertEquals(1, obj.childObjects.size());
 
@@ -98,7 +98,7 @@ private class ConfigurationTest {
         System.assertNotEquals(null, obj);
         System.assertEquals(objs[2], obj.parent);
         System.assertEquals('grand', obj.objectName);
-        System.assertEquals('parent.child2.grand', obj.path);
+        System.assertEquals('parent.child2.grand', obj.path.toString());
         System.assertEquals(null, obj.childObjects);
     }
 }

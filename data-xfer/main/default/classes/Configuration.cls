@@ -6,7 +6,7 @@ public with sharing class Configuration {
         public List<MappedObject> childObjects;
 
         // These are not set in the configuration json, but are manually set when the json is parsed
-        public String path;
+        public RecordPath path;
         public MappedObject parent;
         
         public ObjectRelation getParentRelation() {
@@ -70,7 +70,7 @@ public with sharing class Configuration {
         if (obj != null) {
             RecordPath newPath = new RecordPath(currPath);
             newPath.addToEnd(obj.objectName);
-            obj.path = newPath.toString(); // TODO: change MappedObject.path to be a RecordPath
+            obj.path = newPath;
             objMap.put(newPath, obj);
             if (obj.childObjects != null) {
                 for (MappedObject child : obj.childObjects) {

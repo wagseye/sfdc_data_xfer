@@ -131,7 +131,8 @@ public with sharing class StripeHandler extends ServiceHandler {
         if (actn != null) {
             Map<String,Object> extras = actn.getExtras();
             if (extras != null) {
-                return new RecordPath((String)extras.get('resultsPrefix'));
+                String pathStr = (String)extras.get('resultsPrefix');
+                if (String.isNotBlank(pathStr)) return new RecordPath(pathStr);
             }
         }
         return null;

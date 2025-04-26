@@ -189,13 +189,13 @@ private class DataTransferTest {
             System.assertEquals(2, tierHandles.size());
             TargetRecordHandle hndl = tierHandles[0];
             System.assertEquals('parent', hndl.targetObject.objectName);
-            System.assertEquals('parent', hndl.targetObject.path);
+            System.assertEquals('parent', hndl.targetObject.path.toString());
             System.assertEquals(TargetRecordHandle.Type.TARGET, hndl.type);
             System.assertEquals(TargetRecordHandle.Status.PENDING, hndl.status);
             System.assertEquals(0, hndl.relations.size());
             hndl = tierHandles[1];
             System.assertEquals('child1', hndl.targetObject.objectName);
-            System.assertEquals('parent.child1', hndl.targetObject.path);
+            System.assertEquals('parent.child1', hndl.targetObject.path.toString());
             System.assertEquals(TargetRecordHandle.Type.TARGET, hndl.type);
             System.assertEquals(TargetRecordHandle.Status.PENDING, hndl.status);
             System.assertEquals(0, hndl.relations.size());
@@ -205,7 +205,7 @@ private class DataTransferTest {
             System.assertEquals(2, tierHandles.size());
             hndl = tierHandles[0];
             System.assertEquals('junc_obj', hndl.targetObject.objectName);
-            System.assertEquals('parent.child1.junc_obj', hndl.targetObject.path);
+            System.assertEquals('parent.child1.junc_obj', hndl.targetObject.path.toString());
             System.assertEquals(TargetRecordHandle.Type.JUNCTION, hndl.type);
             System.assertEquals(TargetRecordHandle.Status.PENDING, hndl.status);
             // junction object relations
@@ -221,7 +221,7 @@ private class DataTransferTest {
 
             hndl = tierHandles[1];
             System.assertEquals('child2', hndl.targetObject.objectName);
-            System.assertEquals('parent.child2', hndl.targetObject.path);
+            System.assertEquals('parent.child2', hndl.targetObject.path.toString());
             System.assertEquals(TargetRecordHandle.Type.TARGET, hndl.type);
             System.assertEquals(TargetRecordHandle.Status.PENDING, hndl.status);
             System.assertEquals(1, hndl.relations.size());
@@ -237,7 +237,7 @@ private class DataTransferTest {
             System.assertEquals(1, tierHandles.size());
             hndl = tierHandles[0];
             System.assertEquals('grand', hndl.targetObject.objectName);
-            System.assertEquals('parent.child2.grand', hndl.targetObject.path);
+            System.assertEquals('parent.child2.grand', hndl.targetObject.path.toString());
             System.assertEquals(TargetRecordHandle.Type.TARGET, hndl.type);
             System.assertEquals(TargetRecordHandle.Status.PENDING, hndl.status);
             // grand object relations

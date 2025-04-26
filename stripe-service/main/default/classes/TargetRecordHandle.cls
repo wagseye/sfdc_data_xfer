@@ -5,12 +5,12 @@ public with sharing class TargetRecordHandle {
             if (value.targetObject.path != this.parentPath) throw new StandardException('The parent object path does not match the path of this record');
             this.parent = value;
         } }
-        public String parentPath { public get; private set; }
+        public RecordPath parentPath { public get; private set; }
         public String childFieldName { public get; private set; }
         public String parentFieldName { public get; private set; }
 
-        public ParentRelation(String prntPath, String prntFld, String chldFld) {
-            if (String.isBlank(prntPath)) throw new StandardException('A parent path must be provided');
+        public ParentRelation(RecordPath prntPath, String prntFld, String chldFld) {
+            if ((prntPath == null) || prntPath.isEmpty()) throw new StandardException('A parent path must be provided');
             if (String.isBlank(prntFld)) throw new StandardException('A parent field must be provided');
             if (String.isBlank(chldFld)) throw new StandardException('A child field must be provided');
             this.parentPath = prntPath;
