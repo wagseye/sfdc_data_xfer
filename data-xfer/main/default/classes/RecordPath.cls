@@ -15,17 +15,22 @@ public with sharing class RecordPath {
 
 
     // Instance elements
-    private String path { private get; private set; }
+    private String path { private get; private set {
+        if (this.path != null) throw new StandardException('RecordPath objects are immutable');
+        this.path = value;
+    } }
     public String delimiter { public get; private set {
+        if (this.delimiter != null) throw new StandardException('RecordPath objects are immutable');
         if (String.isBlank(value)) throw new StandardException('The delimiter can not be empty');
         this.delimiter = value;
-    } } { this.delimiter = DEFAULT_DELIMITER; }
+    } }
 
-    public RecordPath() {}
+    public RecordPath() { this.delimiter = DEFAULT_DELIMITER; }
 
     public RecordPath(String path) {
-        if (!isValidPath(path, this.delimiter)) throw new StandardException('Path is not a valid format');
+        if (!isValidPath(path, DEFAULT_DELIMITER)) throw new StandardException('Path is not a valid format');
         this.path = path;
+        this.delimiter = DEFAULT_DELIMITER;
     }
 
     public RecordPath(String path, String delimiter) {
@@ -69,18 +74,18 @@ public with sharing class RecordPath {
         return this.path.split(escapeDelimiter(this.delimiter));
     }
 
-    public void setIndex(Integer idx) {
+    public RecordPath setIndex(Integer idx) {
         if (idx < 0) throw new StandardException('Invalid index: ' + idx);
         Pattern indexPattern = Pattern.compile('^(.*)(\\[[0-9]*\\])$');
         Matcher mtchr = indexPattern.matcher(this.path);
         if (mtchr.matches()) {
-            this.path = mtchr.group(1) + '[' + idx + ']';
+            return new RecordPath(mtchr.group(1) + '[' + idx + ']', this.delimiter);
         } else {
-            this.path = this.path + '[' + idx + ']';
+            return new RecordPath(this.path + '[' + idx + ']', this.delimiter);
         }
     }
 
-    public void addToStart(String prefix) {
+    public RecordPath addToStart(String prefix) {
         if (String.isBlank(prefix)) throw new StandardException('String to prepend must be specified');
         if (prefix.indexOf(delimiter) >= 0 ) throw new StandardException('Elements must be prepended one at a time');
         List<String> elements = this.getElements();
@@ -89,30 +94,28 @@ public with sharing class RecordPath {
         } else {
             elements.add(0, prefix);
         }
-        this.path = String.join(elements, this.delimiter);
+        return new RecordPath(String.join(elements, this.delimiter), this.delimiter);
     }
 
-    public void addToStart(RecordPath otherPath) {
+    public RecordPath addToStart(RecordPath otherPath) {
         // This is a quick, basic implementation that probably has some edge cases which break...
         if ((otherPath != null) && !otherPath.isEmpty()) {
             if (String.isNotBlank(this.path)) {
-                this.path = otherPath.path + this.delimiter + this.path;
+                return new RecordPath(otherPath.path + this.delimiter + this.path, this.delimiter);
             } else {
-                this.path = otherPath.path;
+                return otherPath; // Since instances are immutable they can be freely reused
             }
         }
+        return this;
     }
 
-    public String removeFromStart() {
+    public RecordPath removeFromStart() {
         List<String> elements = this.getElements();
-        if (elements.isEmpty()) return null;
-        String element = elements.remove(0);
-        this.path = String.join(elements, this.delimiter);
-        return element;
+        if (elements.isEmpty()) return new RecordPath();
+        elements.remove(0);
+        return new RecordPath(String.join(elements, this.delimiter), this.delimiter);
     }
 
-    // I do not like that even though these two functions have the same name, one mutates the instance while the other does not,
-    // but I can't come up with a better name so I'm leaving it for now.
     public RecordPath removeFromStart(RecordPath otherPath) {
         // We can get around this, but it'll be a harder implementation (that we may or may not ever need)
         System.assertEquals(this.delimiter, otherPath.delimiter);
@@ -128,34 +131,35 @@ public with sharing class RecordPath {
         return new RecordPath();
     }
 
-    public void addToEnd(String suffix) {
+    public RecordPath addToEnd(String suffix) {
         if (String.isBlank(suffix)) throw new StandardException('String to prepend must be specified');
         List<String> elements = this.getElements();
         elements.add(suffix);
-        this.path = String.join(elements, this.delimiter);
+        RecordPath newPath = new RecordPath(String.join(elements, this.delimiter), this.delimiter);
+        System.debug('newPath: ' + newPath.toString());
+        return newPath;
+        //return new RecordPath(String.join(elements, this.delimiter), this.delimiter);
     }
 
-    public void addToEnd(RecordPath otherPath) {
+    public RecordPath addToEnd(RecordPath otherPath) {
         if ((otherPath != null) && !otherPath.isEmpty()) {
             // This is a quick, basic implementation that probably has some edge cases which break...
             if (String.isNotBlank(this.path)) {
-                this.path += this.delimiter + otherPath.path;
+                return new RecordPath(this.path + this.delimiter + otherPath.path, this.delimiter);
             } else {
-                this.path = otherPath.path;
+                return otherPath; // Since instances are immutable they can be freely reused
             }
         }
+        return this;
     }
 
-    public String removeFromEnd() {
+    public RecordPath removeFromEnd() {
         List<String> elements = this.getElements();
-        if (elements.isEmpty()) return null;
+        if (elements.isEmpty()) return new RecordPath();
         String element = elements.remove(elements.size() - 1);
-        this.path = String.join(elements, this.delimiter);
-        return element;
+        return new RecordPath(String.join(elements, this.delimiter), this.delimiter);
     }
 
-    // I do not like that even though these two functions have the same name, one mutates the instance while the other does not,
-    // but I can't come up with a better name so I'm leaving it for now.
     public RecordPath removeFromEnd(RecordPath otherPath) {
         // We can get around this, but it'll be a harder implementation (that we may or may not ever need)
         System.assertEquals(this.delimiter, otherPath.delimiter);

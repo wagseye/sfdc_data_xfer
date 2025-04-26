@@ -62,12 +62,11 @@ public with sharing class StripeHandler extends ServiceHandler {
 
         for (Configuration.MappedObject obj : cfg.sourceObjects) {
             if (StripeHandler.getRelationAccess(obj.getParentRelation()) == 'expand') {
-                RecordPath fullPath = new RecordPath(obj.path);
                 // The expansions are relative to the top-level object, so we need to strip off the top-level object (if present)
-                fullPath.removeFromStart();
+                RecordPath fullPath = obj.path.removeFromStart();
                 // If there is a prefix, that needs to be added to the front of the path
                 if ((prefix != null) && !prefix.isEmpty()) {
-                    fullPath.addToStart(prefix);
+                    fullPath = fullPath.addToStart(prefix);
                 }
                 expansions.add(fullPath.toString());
             }

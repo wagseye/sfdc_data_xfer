@@ -2,7 +2,7 @@
 private class RecordPathTest {
 
     @isTest
-    static void testIsValidPath() {
+    static void testIsValidPath() { 
         System.assertEquals(true,  RecordPath.isValidPath('abc', '.'));
         System.assertEquals(true,  RecordPath.isValidPath('a-b-c', '.'));
         System.assertEquals(true,  RecordPath.isValidPath('a_b-c', '.'));
@@ -86,64 +86,58 @@ private class RecordPathTest {
     @isTest
     static void testSetIndex() {
         RecordPath path = new RecordPath('abc.def');
-        path.setIndex(1);
+        path = path.setIndex(1);
         System.assertEquals('abc.def[1]', path.toString());
-        path.setIndex(5);
+        path = path.setIndex(5);
         System.assertEquals('abc.def[5]', path.toString());
 
         path = new RecordPath('abc.def[]');
-        path.setIndex(2);
+        path = path.setIndex(2);
         System.assertEquals('abc.def[2]', path.toString());
 
         path = new RecordPath('abc[].def');
-        path.setIndex(25);
+        path = path.setIndex(25);
         System.assertEquals('abc[].def[25]', path.toString());
 
         path = new RecordPath('abc[0].def[]');
-        path.setIndex(3);
+        path = path.setIndex(3);
         System.assertEquals('abc[0].def[3]', path.toString());
-        path.setIndex(4);
+        path = path.setIndex(4);
         System.assertEquals('abc[0].def[4]', path.toString());
     }
 
     @isTest
     static void testEditEnd() {
         RecordPath path = new RecordPath('');
-        path.addToEnd('abc');
+        path = path.addToEnd('abc');
         System.assertEquals('abc', path.toString());
-        String value = path.removeFromEnd();
-        System.assertEquals('abc', value);
+        path = path.removeFromEnd();
         System.assertEquals('', path.toString());
 
         path = new RecordPath('abc');
-        path.addToEnd('def');
+        path = path.addToEnd('def');
         System.assertEquals('abc.def', path.toString());
-        value = path.removeFromEnd();
-        System.assertEquals('def', value);
+        path = path.removeFromEnd();
         System.assertEquals('abc', path.toString());
 
         path = new RecordPath('abc.def');
-        path.addToEnd('ghi');
+        path = path.addToEnd('ghi');
         System.assertEquals('abc.def.ghi', path.toString());
-        value = path.removeFromEnd();
-        System.assertEquals('ghi', value);
+        path = path.removeFromEnd();
         System.assertEquals('abc.def', path.toString());
 
         // Run it all the way down to empty
-        value = path.removeFromEnd();
-        System.assertEquals('def', value);
+        path = path.removeFromEnd();
         System.assertEquals('abc', path.toString());
-        value = path.removeFromEnd();
-        System.assertEquals('abc', value);
+        path = path.removeFromEnd();
         System.assertEquals('', path.toString());
-        value = path.removeFromEnd();
-        System.assertEquals(null, value);
+        path = path.removeFromEnd();
         System.assertEquals('', path.toString());
 
         path = new RecordPath('abc.def.ghi.jkl');
         Boolean isError = false;
         try {
-            path.removeFromEnd(new RecordPath('abc'));
+            path = path.removeFromEnd(new RecordPath('abc'));
         } catch (Exception ex) { isError = true; }
         System.assertEquals(true, isError);
         System.assertEquals('abc.def.ghi', path.removeFromEnd(new RecordPath('jkl')).toString());
@@ -155,42 +149,36 @@ private class RecordPathTest {
     @isTest
     static void testEditStart() {
         RecordPath path = new RecordPath('');
-        path.addToStart('abc');
+        path = path.addToStart('abc');
         System.assertEquals('abc', path.toString());
-        String value = path.removeFromStart();
-        System.assertEquals('abc', value);
+        path = path.removeFromStart();
         System.assertEquals('', path.toString());
 
 
         path = new RecordPath('abc');
-        path.addToStart('def');
+        path = path.addToStart('def');
         System.assertEquals('def.abc', path.toString());
-        value = path.removeFromStart();
-        System.assertEquals('def', value);
+        path = path.removeFromStart();
         System.assertEquals('abc', path.toString());
 
         path = new RecordPath('abc.def');
-        path.addToStart('ghi');
+        path = path.addToStart('ghi');
         System.assertEquals('ghi.abc.def', path.toString());
-        value = path.removeFromStart();
-        System.assertEquals('ghi', value);
+        path = path.removeFromStart();
         System.assertEquals('abc.def', path.toString());
 
         // Run it all the way down to empty
-        value = path.removeFromStart();
-        System.assertEquals('abc', value);
+        path = path.removeFromStart();
         System.assertEquals('def', path.toString());
-        value = path.removeFromStart();
-        System.assertEquals('def', value);
+        path = path.removeFromStart();
         System.assertEquals('', path.toString());
-        value = path.removeFromStart();
-        System.assertEquals(null, value);
+        path = path.removeFromStart();
         System.assertEquals('', path.toString());
 
         path = new RecordPath('abc.def.ghi.jkl');
         Boolean isError = false;
         try {
-            path.removeFromStart(new RecordPath('jkl'));
+            path = path.removeFromStart(new RecordPath('jkl'));
         } catch (Exception ex) { isError = true; }
         System.assertEquals(true, isError);
         System.assertEquals('def.ghi.jkl', path.removeFromStart(new RecordPath('abc')).toString());

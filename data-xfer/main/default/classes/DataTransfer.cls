@@ -75,7 +75,7 @@ public with sharing class DataTransfer {
                 }
             }
             tierHandles.add(hndl);
-            handleMap.put(new RecordPath(obj.path), hndl); // Create a new RecordPath object when adding to a map
+            handleMap.put(obj.path, hndl);
         }
         return handles;
     }
@@ -113,7 +113,7 @@ public with sharing class DataTransfer {
                     }
                 }
             }
-            tierMap.put(new RecordPath(obj.path), tier); // Create a new RecordPath object when adding to a map
+            tierMap.put(obj.path, tier);
         }
         return tierMap;
     }
@@ -121,19 +121,18 @@ public with sharing class DataTransfer {
     private static Map<RecordPath,List<TargetRecordHandle.ParentRelation>> getRelations(List<Configuration.MappedObject> objs, /*output*/ Map<RecordPath,Configuration.MappedObject> objMap) {
         Map<RecordPath,List<TargetRecordHandle.ParentRelation>> relMap = new Map<RecordPath,List<TargetRecordHandle.ParentRelation>>();
         for (Configuration.MappedObject obj : objs) {
-            objMap.put(new RecordPath(obj.path), obj); // Create a new RecordPath object when adding to a map
+            objMap.put(obj.path, obj);
             if (obj.parent != null) {
                 ObjectRelation rltn = ObjectRelation.getRecordByName(obj.parentRelation);
                 if (rltn == null) throw new StandardException('Unable to find object relation with name ' + obj.parentRelation);
                 if (rltn.isJunction()) {
                     JunctionObject junc = createJunctionObject(obj, rltn);
                     List<TargetRecordHandle.ParentRelation> rels = createJunctionRelations(obj, rltn);
-                    RecordPath juncPath = new RecordPath(junc.path);  // Create a new RecordPath object when adding to a map
-                    relMap.put(juncPath, rels);
-                    objMap.put(juncPath, junc);
+                    relMap.put(junc.path, rels);
+                    objMap.put(junc.path, junc);
                 } else { // The relation is a reference
                     TargetRecordHandle.ParentRelation rel = new TargetRecordHandle.ParentRelation(obj.parent.path, rltn.getField1(), rltn.getField2());
-                    relMap.put(new RecordPath(obj.path), new List<TargetRecordHandle.ParentRelation>{ rel });  // Create a new RecordPath object when adding to a map
+                    relMap.put(obj.path, new List<TargetRecordHandle.ParentRelation>{ rel });
                 }
             }
         }
@@ -148,9 +147,7 @@ public with sharing class DataTransfer {
         if (intObj == null) throw new StandardException('Did not find intermediate object for object relation ' + rltn.getApiName());
         junc.objectName = intObj.getName();
         junc.parent = obj;
-        RecordPath juncPath = new RecordPath(obj.path);
-        juncPath.addToEnd(junc.objectName);
-        junc.path = juncPath;
+        junc.path = obj.path.addToEnd(junc.objectName);
 
         return junc;
     }
@@ -179,7 +176,7 @@ public with sharing class DataTransfer {
         // Is top level a list or an object?
         RecordPath rootPath = config.sourceObjects[0].path;
         List<DataRecord> rootRecords = new List<DataRecord>();
-        recMap.put(new RecordPath(rootPath), rootRecords); // Create a new RecordPath object when adding to a map
+        recMap.put(rootPath, rootRecords);
         DataRecord rootRecord = new DataRecord(jsonData, null, rootPath);
         if (rootRecord.isList) {
             rootRecords.addAll(rootRecord.getChildren());
@@ -198,10 +195,10 @@ public with sharing class DataTransfer {
         List<DataRecord> children = mapRecs.get(configPath);
         if (children == null) {
             // Go up the hierarchy, looking for the longest prefix path that already has DataRecords created for it
-            RecordPath parentPath = new RecordPath(configPath);
+            RecordPath parentPath = configPath;
             List<DataRecord> parentList;
             while (!parentPath.isEmpty() && (parentList == null)) {
-                parentPath.removeFromEnd();
+                parentPath = parentPath.removeFromEnd();
                 parentList = mapRecs.get(parentPath);
             }
             if (parentList == null) throw new StandardException('Did not find parent record');
@@ -209,7 +206,7 @@ public with sharing class DataTransfer {
             // Retrieve the child record. If it is a list, add all child elements, otherwise add the record itself
             RecordPath relativePath = configPath.removeFromStart(parentPath);
             children = new List<DataRecord>();
-            mapRecs.put(new RecordPath(configPath), children); // Create a new RecordPath object when adding to a map
+            mapRecs.put(configPath, children);
             Boolean childIsList;
             for (DataRecord parent : parentList) {
                 DataRecord child = parent.getChild(relativePath);
@@ -219,7 +216,7 @@ public with sharing class DataTransfer {
                 if (childIsList) {
                     List<DataRecord> grandchildren = child.getChildren();
                     for (Integer idx=0; idx<grandchildren.size(); idx++) {
-                        grandchildren[idx].path.setIndex(idx);
+                        grandchildren[idx].setPathIndex(idx);
                         children.add(grandchildren[idx]);
                     }
                 } else {

@@ -2,7 +2,7 @@
 private class DataRecordTest {
 
     private static DataRecord getTestRecord() {
-        return new DataRecord(getTestJson(), null, new RecordPath());
+        return new DataRecord(getTestJson(), null, null);
     }
 
     private static Map<String,Object> getTestJson() {

@@ -7,7 +7,7 @@ public with sharing virtual class DataRecord {
 
     public DataRecord(Object record, DataRecord parent, RecordPath path) {
         this.parent = parent;
-        this.path = path;
+        this.path = (path != null) ? path : new RecordPath();
         if (record instanceof List<Object>) {
             // If the record is an instance of a list, parse out the children
             this.isList = true;
@@ -15,8 +15,7 @@ public with sharing virtual class DataRecord {
             Integer idx = 0;
             for (Object child : (List<Object>)record) {
                 if (!(child instanceof Map<String,Object>)) throw new StandardException('Unexpected list child type');
-                RecordPath childPath = this.path;
-                DataRecord childRecord = new DataRecord((Map<String,Object>)child, this, new RecordPath(childPath)); // Create a new RecordPath for the new record
+                DataRecord childRecord = new DataRecord((Map<String,Object>)child, this, this.path);
                 this.children.add(childRecord);
                 idx++;
             }
@@ -49,9 +48,7 @@ public with sharing virtual class DataRecord {
             currRec = childRec;
         }
         if (currRec != null) {
-            RecordPath childPath = new RecordPath(this.path);
-            childPath.addToEnd(relativePath);
-            return new DataRecord(currRec, this, childPath);
+            return new DataRecord(currRec, this, this.path.addToEnd(relativePath));
         }
         return null;
     }
@@ -59,6 +56,10 @@ public with sharing virtual class DataRecord {
     public List<DataRecord> getChildren() {
         if (!this.isList) throw new StandardException('This method can only be called on a list node');
         return this.children;
+    }
+
+    public void setPathIndex(Integer idx) {
+        this.path = this.path.setIndex(idx);
     }
 
     public Object getValue(String fldName) {
@@ -96,9 +97,7 @@ public with sharing virtual class DataRecord {
             if (!(value instanceof Map<String,Object>)) throw new StandardException('Child component ' + fldComponent + ' is not an object');
             currentMap = (Map<String,Object>)value;
         }
-        RecordPath childPath = new RecordPath(this.path);
-        childPath.addToEnd(fldName);
-        return new DataRecord(currentMap, this, childPath);
+        return new DataRecord(currentMap, this, this.path.addToEnd(fldName));
     }
 
     public virtual List<DataRecord> getChildren(String fldName) {
@@ -127,7 +126,7 @@ public with sharing virtual class DataRecord {
             List<DataRecord> children = new List<DataRecord>();
             for (Object obj : listObjects) {
                 if (!(obj instanceof Map<String,Object>)) throw new StandardException('Child record is not a map');
-                children.add(new DataRecord((Map<String,Object>)obj, this, new RecordPath(this.path))); // Create a new RecordPath for the new record
+                children.add(new DataRecord((Map<String,Object>)obj, this, this.path));
             } 
             return children;
         }

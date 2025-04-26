@@ -54,8 +54,8 @@ public with sharing class Configuration {
         Configuration config = (Configuration)JSON.deserialize(configStr, Configuration.class);
         config.sourceObjectMap = new Map<RecordPath,MappedObject>();
         config.targetObjectMap = new Map<RecordPath,MappedObject>();
-        parseTreeRecursive(config.sourceObjectMap, config.sourceTree, new RecordPath());
-        parseTreeRecursive(config.targetObjectMap, config.targetTree, new RecordPath());
+        parseTreeRecursive(config.sourceObjectMap, config.sourceTree, null);
+        parseTreeRecursive(config.targetObjectMap, config.targetTree, null);
         validateConfiguration(config);
         return config;
     }
@@ -68,14 +68,13 @@ public with sharing class Configuration {
 
     private static void parseTreeRecursive(Map<RecordPath,MappedObject> objMap, MappedObject obj, RecordPath currPath) {
         if (obj != null) {
-            RecordPath newPath = new RecordPath(currPath);
-            newPath.addToEnd(obj.objectName);
-            obj.path = newPath;
-            objMap.put(newPath, obj);
+            if (currPath == null) currPath = new RecordPath();
+            obj.path = currPath.addToEnd(obj.objectName);
+            objMap.put(obj.path, obj);
             if (obj.childObjects != null) {
                 for (MappedObject child : obj.childObjects) {
                     child.parent = obj;
-                    parseTreeRecursive(objMap, child, newPath);
+                    parseTreeRecursive(objMap, child, obj.path);
                 }
             }
         }
